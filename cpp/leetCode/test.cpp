@@ -2,21 +2,17 @@
 
 // 前向声明
 class MyClass;
+void foo(MyClass* obj);
 
-// 使用前向声明的类
-void foo(MyClass* obj); // 合法，因为只需要知道MyClass的存在
-
-// 定义MyClass
 class MyClass {
 public:
     void bar() {
-        std::cout << "hi";
+        std::cout << "hi" << "\n";
     }
 };
 
-// 使用MyClass
 void foo(MyClass* obj) {
-    obj->bar(); // 合法，因为MyClass已经定义
+    obj->bar();
 }
 
 int main()
@@ -24,5 +20,24 @@ int main()
     MyClass m = MyClass();
     int a {0};
     foo(&m);
+
+    char c {};
+    std::cout << c << "\n";
+    c = 123;
+    std::cout << c << "\n";
+
+    // 类型转换：优先使用static_cast<T>, 避免使用c风格的类型转换 int(5.5)
+    // static_cast在编译期就会进行类型检查，而函数式转换则是在运行时进行的。
+    // 静态转换在编译期就确保了类型转换的合法性，而函数式转换则允许在运行时进行更灵活的转换，尽管这种灵活性可能会带来运行时错误的风险。
+    std::cout << static_cast<int>(3.1415) << '\n';
+    // int three = int(3.1415);
+    // int* p = (int*) three; // warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+    // std::cout << p << '\n';
+
+    //任何在初始化后不修改，且其初始值在编译时已知的变量都应声明为constexpr。任何在初始化后不修改，且其初始值在编译时未知的变量都应声明为const。
+
+    
+
+
     return 0;
 }
