@@ -22,9 +22,9 @@ int main()
     foo(&m);
 
     char c {};
-    std::cout << c << "\n";
+    std::cout << a-- << "\n";
     c = 123;
-    std::cout << c << "\n";
+    std::cout << --a << "\n";
 
     // 类型转换：优先使用static_cast<T>, 避免使用c风格的类型转换 int(5.5)
     // static_cast在编译期就会进行类型检查，而函数式转换则是在运行时进行的。
@@ -36,7 +36,7 @@ int main()
 
     //任何在初始化后不修改，且其初始值在编译时已知的变量都应声明为constexpr。任何在初始化后不修改，且其初始值在编译时未知的变量都应声明为const。
 
-    
+
 
 
     return 0;
