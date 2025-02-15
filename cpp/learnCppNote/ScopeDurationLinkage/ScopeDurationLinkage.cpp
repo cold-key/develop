@@ -1,4 +1,7 @@
 #include <iostream>
+#include "Constant.h"
+
+extern constexpr int x = 1;
 
 void cout(){
     std::cout<< "cout\n";
@@ -54,6 +57,28 @@ int main(){
         std::cout<< x <<'\n';
     }
     std::cout<< x <<'\n';
+
+    // Constant Test
+    std::cout<< "Constant Test ------------------ " <<'\n';
+    std::cout<< Constants::x <<'\n';
+    std::cout<< Constants::y <<'\n';
+    std::cout<< Constants::z <<'\n';
+    std::cout<< Constants::value <<'\n';
+
+    //extern Test
+    std::cout<< "extern Test ------------------ " <<'\n';
+    extern int g_x;
+    extern int g_y;
+    std::cout<< g_x <<'\n';
+    std::cout<< g_y <<'\n';
+
+    //static Test
+    std::cout<< "static Test ------------------ " <<'\n';
+    for(int i = 0; i<5; i++){
+        static int x = 0;//只初始化一次
+        x++;
+        std::cout<< x <<'\n';
+    }
 
     return 0;
 }
