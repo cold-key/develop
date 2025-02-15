@@ -58,6 +58,16 @@ int main(){
     }
     std::cout<< x <<'\n';
 
+    // Duration Test
+    std::cout<< "Duration Test ------------------ " <<'\n';
+    for(int i=0; i<5; i++){
+        static int x = 0;
+        x++;
+        std::cout<< x <<'\n';
+    }
+    std::cout<< x <<'\n';
+    
+
     // Constant Test
     std::cout<< "Constant Test ------------------ " <<'\n';
     std::cout<< Constants::x <<'\n';
