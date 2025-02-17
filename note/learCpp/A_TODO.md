@@ -2,3 +2,8 @@
 ### 第五章 
 #### std::string_view 没有详细了解
 
+
+
+## 小记
+- const和constexpr,编译时常量和运行时常量
+- extern关键字
