@@ -29,12 +29,12 @@ set(CMAKE_MAKEFILE_DEPENDS
   "C:/Program Files/CMake/share/cmake-3.30/Modules/Platform/Windows-windres.cmake"
   "C:/Program Files/CMake/share/cmake-3.30/Modules/Platform/Windows.cmake"
   "C:/Program Files/CMake/share/cmake-3.30/Modules/Platform/WindowsPaths.cmake"
+  "C:/Users/27763/develop/cpp/learnCppNote/ScopeDurationLinkage/CMakeLists.txt"
+  "C:/Users/27763/develop/cpp/learnCppNote/ScopeDurationLinkage/ScopeDurationLinkageConfig.h.in"
   "CMakeFiles/3.30.7/CMakeCCompiler.cmake"
   "CMakeFiles/3.30.7/CMakeCXXCompiler.cmake"
   "CMakeFiles/3.30.7/CMakeRCCompiler.cmake"
   "CMakeFiles/3.30.7/CMakeSystem.cmake"
-  "C:/Users/27763/develop/cpp/learnCppNote/CMakeTest/source/CMakeLists.txt"
-  "C:/Users/27763/develop/cpp/learnCppNote/CMakeTest/source/CMakeTestConfig.h.in"
   )
 
 # The corresponding makefile is:
@@ -45,11 +45,11 @@ set(CMAKE_MAKEFILE_OUTPUTS
 
 # Byproducts of CMake generate step:
 set(CMAKE_MAKEFILE_PRODUCTS
-  "CMakeTestConfig.h"
+  "ScopeDurationLinkageConfig.h"
   "CMakeFiles/CMakeDirectoryInformation.cmake"
   )
 
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
-  "CMakeFiles/CMakeTest.dir/DependInfo.cmake"
+  "CMakeFiles/ScopeDurationLinkage.dir/DependInfo.cmake"
   )

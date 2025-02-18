@@ -1,0 +1,2 @@
+#define VERSION_MAJOR @CMakeTest_VERSION_MAJOR@
+#cmakedefine USE_MYMATH

@@ -1,5 +1,6 @@
 #include <iostream>
 #include "Constant.h"
+#include "./build/ScopeDurationLinkageConfig.h"
 
 extern constexpr int x = 1;
 
@@ -39,6 +40,13 @@ namespace myOtherSpace::innerSpace{
 }
 
 int main(){
+    // Project Config
+    std::cout<< "Project Config ------------------ " <<'\n';
+    std::cout<< "ScopeDurationLinkage_VERSION_MAJOR:" << ScopeDurationLinkage_VERSION_MAJOR << '\n';
+    std::cout<< "ScopeDurationLinkage_VERSION_MINOR:" << ScopeDurationLinkage_VERSION_MINOR << '\n';
+    std::cout<< "ScopeDurationLinkage_VERSION_PATCH:" << ScopeDurationLinkage_VERSION_PATCH << '\n';
+    // std::cout<< "Compile Time Config x:" << TIMESTAMP << '\n';
+
     // nameSpace Test
     std::cout<< "nameSpace Test ------------------ " <<'\n';
     mySpace::print();
