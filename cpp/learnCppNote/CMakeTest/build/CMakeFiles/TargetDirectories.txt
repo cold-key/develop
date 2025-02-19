@@ -1,3 +1,0 @@
-E:/codeSpace/develop/cpp/learnCppNote/CMakeTest/build/CMakeFiles/CMakeTest.dir
-E:/codeSpace/develop/cpp/learnCppNote/CMakeTest/build/CMakeFiles/edit_cache.dir
-E:/codeSpace/develop/cpp/learnCppNote/CMakeTest/build/CMakeFiles/rebuild_cache.dir
