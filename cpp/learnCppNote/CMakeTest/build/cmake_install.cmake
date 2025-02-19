@@ -1,4 +1,4 @@
-# Install script for directory: C:/Users/27763/develop/cpp/learnCppNote/CMakeTest/source
+# Install script for directory: E:/codeSpace/develop/cpp/learnCppNote/CMakeTest/source
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -52,6 +52,6 @@ endif()
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-  file(WRITE "C:/Users/27763/develop/cpp/learnCppNote/CMakeTest/build/${CMAKE_INSTALL_MANIFEST}"
+  file(WRITE "E:/codeSpace/develop/cpp/learnCppNote/CMakeTest/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
 endif()
