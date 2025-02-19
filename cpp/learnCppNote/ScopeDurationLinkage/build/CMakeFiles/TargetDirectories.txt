@@ -1,0 +1,3 @@
+C:/Users/27763/develop/cpp/learnCppNote/ScopeDurationLinkage/build/CMakeFiles/ScopeDurationLinkage.dir
+C:/Users/27763/develop/cpp/learnCppNote/ScopeDurationLinkage/build/CMakeFiles/edit_cache.dir
+C:/Users/27763/develop/cpp/learnCppNote/ScopeDurationLinkage/build/CMakeFiles/rebuild_cache.dir

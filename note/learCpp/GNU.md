@@ -12,8 +12,8 @@ int main()
 要想这段代码在Linux上运行，我们需要使用GCC
 1. 预编译：将hello.c和stdio.h预编译为hello.i
 2. 编译：将hello.i编译为hello.s
-3. 汇编：将hello.s翻译为机器指令hello.o（.o目标文件）链接：
-4. 链接各种需要的库和其他目标文件（该hello程序不需要）得到可执行文件hello.out（相当于windows的.exe）
+3. 汇编：将hello.s翻译为机器指令hello.o（.o目标文件）
+4. 链接：链接各种需要的库和其他目标文件（该hello程序不需要）得到可执行文件hello.out（相当于windows的.exe）
 
 整个过程将高级语言翻译成了机器语言，而编译器，就是这样的一个工具。**GCC可以完成从预编译编译，汇编，链接整个过程**。但是平时使用Visual Studio等软件时并没有接触到这个过程，因为VS是高度集成开发环境（IDE、Integrated Development Environment），集成了代码编辑器，编译器，调试器和图像化用户界面，上述所有程序编译和链接过程都用一步build构建带过了。
 

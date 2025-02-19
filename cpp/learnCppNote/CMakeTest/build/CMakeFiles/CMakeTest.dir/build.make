@@ -69,7 +69,12 @@ include CMakeFiles/CMakeTest.dir/progress.make
 include CMakeFiles/CMakeTest.dir/flags.make
 
 CMakeFiles/CMakeTest.dir/main.cpp.obj: CMakeFiles/CMakeTest.dir/flags.make
+<<<<<<< HEAD
 CMakeFiles/CMakeTest.dir/main.cpp.obj: E:/codeSpace/develop/cpp/learnCppNote/CMakeTest/source/main.cpp
+=======
+CMakeFiles/CMakeTest.dir/main.cpp.obj: CMakeFiles/CMakeTest.dir/includes_CXX.rsp
+CMakeFiles/CMakeTest.dir/main.cpp.obj: C:/Users/27763/develop/cpp/learnCppNote/CMakeTest/source/main.cpp
+>>>>>>> origin/HEAD
 CMakeFiles/CMakeTest.dir/main.cpp.obj: CMakeFiles/CMakeTest.dir/compiler_depend.ts
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\codeSpace\develop\cpp\learnCppNote\CMakeTest\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/CMakeTest.dir/main.cpp.obj"
 	C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/CMakeTest.dir/main.cpp.obj -MF CMakeFiles\CMakeTest.dir\main.cpp.obj.d -o CMakeFiles\CMakeTest.dir\main.cpp.obj -c E:\codeSpace\develop\cpp\learnCppNote\CMakeTest\source\main.cpp
