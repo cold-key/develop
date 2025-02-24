@@ -98,5 +98,8 @@ int main(){
         std::cout<< x <<'\n';
     }
 
+    auto x {1.2};
+    std::cout<< x <<'\n';
+
     return 0;
 }
