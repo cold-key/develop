@@ -19,10 +19,27 @@ T getAdd(T a, T b){
 template<>
 int getAdd(int a, int b) = delete;
 
+template<typename T,typename U>
+auto max(T a, U b){
+    return a > b ? a : b;
+}
+
+// C++20之后可以这样写
+// auto max(auto a, auto b){
+//     return a > b ? a : b;
+// };
+
 int main(){
     // std::cout<< getAdd(1, 2) <<'\n';
     // std::cout<< getAdd(1, '2') <<'\n';
-    std::cout<< getAdd(1.0, 2.0) <<'\n';
+    // std::cout<< getAdd(1.0, 2.0) <<'\n';
+
+    constexpr int a {11};
+    constexpr int b {22};
+
+    static_assert(a == 11, "error");
+    static_assert(b == 22, "error");
+
     return 0;
 }
 
