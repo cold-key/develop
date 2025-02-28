@@ -1,0 +1,7 @@
+numpy>=1.21.0
+opencv-python>=4.5.3.56
+pytesseract>=0.3.8
+pywin32>=301
+pillow>=8.3.1
+pyautogui>=0.9.53
+loguru>=0.5.3
