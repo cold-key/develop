@@ -1,5 +1,6 @@
 #include <cstdint>
 #include <iostream>
+#include <vector>
 
 struct Point{
     double x;
@@ -25,16 +26,32 @@ enum class Size{
     Large,
 };
 
-void printPoint(const Point& p){
+struct Nothing {
+    int x;
+    int y {};
+    int z {121};
+};
+
+void printStruct(const Point& p){
+    std::cout << p.x << ", " << p.y << ", " << p.z << std::endl;
+}
+
+void printStruct(const Nothing& p){
     std::cout << p.x << ", " << p.y << ", " << p.z << std::endl;
 }
 
 int main(){
     Point p {}; // 列表初始化（推荐）
-    printPoint(p);
+    printStruct(p);
 
     Point p2 = {1, 2, 3}; // 拷贝列表初始化（不推荐）
-    printPoint(p2);
+    printStruct(p2);
+
+    Point p3 {1,2};
+    printStruct(p3);
+
+    Nothing n {};
+    printStruct(n);
 
     Color c = Red;
     std::cout << (Blue == 2) << std::endl;
