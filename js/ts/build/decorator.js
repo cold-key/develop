@@ -1,10 +1,4 @@
-var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
-    var useValue = arguments.length > 2;
-    for (var i = 0; i < initializers.length; i++) {
-        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-    }
-    return useValue ? value : void 0;
-};
+// 类装饰器
 var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
     function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
     var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
@@ -32,92 +26,77 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
 };
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
 var __setFunctionName = (this && this.__setFunctionName) || function (f, name, prefix) {
     if (typeof name === "symbol") name = name.description ? "[".concat(name.description, "]") : "";
     return Object.defineProperty(f, "name", { configurable: true, value: prefix ? "".concat(prefix, " ", name) : name });
 };
-function sayIntroduce(originalMethod, context) {
-    return function () {
-        originalMethod.call(this);
-        if (Introduce[this.name]) {
-            console.log(Introduce[this.name]);
-        }
+// 这是工厂函数，返回值才是装饰器
+function CustomClassDecorator(info) {
+    return (target) => {
+        // 非侵入式
+        console.log(target); // [Function user]
+        console.log(info); // 你好
     };
 }
-function constructorLogger(originalConstructor) {
-    console.log("constructor...");
-    return originalConstructor;
-}
-let People = (() => {
-    let _classDecorators = [constructorLogger];
+let User = (() => {
+    let _classDecorators = [CustomClassDecorator('你好')];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
-    let _instanceExtraInitializers = [];
-    let _sayHelloByPeople_decorators;
-    var People = _classThis = class {
-        constructor(name, age) {
-            this.name = __runInitializers(this, _instanceExtraInitializers);
-            this.name = name;
-            this.age = age;
-        }
-        getName() {
-            return this.name;
-        }
-        sayHelloByPeople() {
-            console.log("People sayHello");
-            // console.log(`Hello, my name is ${this.name}`);
+    var User = _classThis = class {
+        constructor() {
+            this.name = '马东锡';
         }
     };
-    __setFunctionName(_classThis, "People");
+    __setFunctionName(_classThis, "User");
     (() => {
         const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(null) : void 0;
-        _sayHelloByPeople_decorators = [sayIntroduce];
-        __esDecorate(_classThis, null, _sayHelloByPeople_decorators, { kind: "method", name: "sayHelloByPeople", static: false, private: false, access: { has: obj => "sayHelloByPeople" in obj, get: obj => obj.sayHelloByPeople }, metadata: _metadata }, null, _instanceExtraInitializers);
         __esDecorate(null, _classDescriptor = { value: _classThis }, _classDecorators, { kind: "class", name: _classThis.name, metadata: _metadata }, null, _classExtraInitializers);
-        People = _classThis = _classDescriptor.value;
+        User = _classThis = _classDescriptor.value;
         if (_metadata) Object.defineProperty(_classThis, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
         __runInitializers(_classThis, _classExtraInitializers);
     })();
-    return People = _classThis;
+    return User = _classThis;
 })();
-let Animal = (() => {
-    let _classDecorators = [constructorLogger];
+function AnimalDecorator(constructor) {
+    let role = new constructor();
+    console.log(JSON.stringify(role));
+    return class extends constructor {
+        constructor() {
+            super(...arguments);
+            this.name = "Peter";
+            this.son = "kelis";
+        }
+    };
+}
+let Role = (() => {
+    let _classDecorators = [AnimalDecorator];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
-    let _instanceExtraInitializers = [];
-    let _sayHelloByAnimal_decorators;
-    var Animal = _classThis = class {
-        constructor(name) {
-            this.name = __runInitializers(this, _instanceExtraInitializers);
-            this.name = name;
-        }
-        getName() {
-            return this.name;
-        }
-        sayHelloByAnimal() {
-            console.log("Animal sayHello");
-            // console.log(`wangwang, wang wang wang ${this.name}`);
+    var Role = _classThis = class {
+        constructor() {
+            this.name = '狗';
         }
     };
-    __setFunctionName(_classThis, "Animal");
+    __setFunctionName(_classThis, "Role");
     (() => {
         const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(null) : void 0;
-        _sayHelloByAnimal_decorators = [sayIntroduce];
-        __esDecorate(_classThis, null, _sayHelloByAnimal_decorators, { kind: "method", name: "sayHelloByAnimal", static: false, private: false, access: { has: obj => "sayHelloByAnimal" in obj, get: obj => obj.sayHelloByAnimal }, metadata: _metadata }, null, _instanceExtraInitializers);
         __esDecorate(null, _classDescriptor = { value: _classThis }, _classDecorators, { kind: "class", name: _classThis.name, metadata: _metadata }, null, _classExtraInitializers);
-        Animal = _classThis = _classDescriptor.value;
+        Role = _classThis = _classDescriptor.value;
         if (_metadata) Object.defineProperty(_classThis, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
         __runInitializers(_classThis, _classExtraInitializers);
     })();
-    return Animal = _classThis;
+    return Role = _classThis;
 })();
-const Introduce = {
-    Kobe: "manba out",
-    Dog: "wanwanwanwanwanwan"
-};
-let Kobe = new People("Kobe", 30);
-// Kobe.sayHelloByPeople();
-let Dog = new Animal("Dog");
-// Dog.sayHelloByAnimal();
+let user = new User();
+console.log(user.name);
+let role = new Role();
+console.log(role.name);
