@@ -40,6 +40,26 @@ class Point{
         }
 };
 
+class ClassOne{
+    private:
+        int x;
+        int y;
+    public:
+        ClassOne() = default;
+        ClassOne(const ClassOne& other) : x{other.x},y{other.y}{
+            std::cout << "Copy constructor" << std::endl;
+        }
+        ClassOne(int x) : ClassOne(x,1){}
+        ClassOne(int x, int y) : x{x},y{y}{}
+
+        int getX() const { return x; }
+        int getY() const { return y; }
+
+        void printThis(){
+            std::cout << "x: " << x << " y: " << y << std::endl;
+        }
+};
+
 int main(){
     // PublicStruct* ps = new PublicStruct();
     // PrivateClass* pc = new PrivateClass();
@@ -47,15 +67,19 @@ int main(){
     // ps->x = 1;
     // // pc->x = 1; // error
 
-    Point p {1,2};
-    p.test();
-    p.setX(3);
-    p.test();
+    // Point p {1,2};
+    // p.test();
+    // p.setX(3);
+    // p.test();
 
-    PrivateClass p2 {1,2};
-    p2.printThis();
-    PrivateClass p3;
-    p3.printThis();
+    // PrivateClass p2 {1,2};
+    // p2.printThis();
+    // PrivateClass p3;
+    // p3.printThis();
 
+    ClassOne c1 {1};
+    c1.printThis();
+
+    ClassOne c2  = c1;
     return 0;
 }
