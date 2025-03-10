@@ -18,7 +18,7 @@ public:
         for(int i = 0; i < nums.size(); i++){
             int j = 0;
             int k = nums.size() - 1;
-            while(j != k){
+            while(j < k){
                 if(i==j){
                     j++;
                     continue;
