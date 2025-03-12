@@ -7,3 +7,5 @@
 ## 小记
 - const和constexpr,编译时常量和运行时常量
 - extern关键字
+
+总结现代c++中的初始化
