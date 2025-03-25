@@ -18,6 +18,9 @@ void foo(MyClass* obj) {
 
 using namespace std;
 #include <vector>
+#include<unordered_map>
+#include<algorithm>
+#include<cmath>
 class Solution {
     public:
         int sumOfBeauties(vector<int>& nums) {
@@ -47,6 +50,68 @@ class Solution {
     }
 };
 
+class Spreadsheet {
+    public:
+        unordered_map<int,int> data;
+        Spreadsheet(int rows) {
+            
+        }
+        
+        void setCell(string cell, int value) {
+            int decodeNum = decode(cell);
+            this->data[decodeNum] = value;
+        }
+    
+        int decode(string cell){
+            cout << "cell:" << cell << "\n";
+            int startIndex = 0;
+            int rolNum = 0;
+            int sub = cell[0] - 'A';
+            cout << "sub:" << sub << "\n";
+            if(cell[0] - 'A'<0 ||cell[0] - 'A'>25){
+                rolNum = 0;
+            }else{
+                cout << "cell[0] : " << cell[0] << "\n";
+                cout << "cell[0] - 'A' : " << (cell[0] - 'A') << "\n";
+                rolNum = (cell[0] - 'A' + 1) * 1000;
+                startIndex = 1;
+            }
+            int colNum = 0;
+            for(int i = startIndex; i < cell.size(); i++){
+                if(cell[i] - '0' == 0) continue;
+                startIndex = i;
+                break;
+            }
+            for(int i = startIndex; i < cell.size(); i++){
+                colNum += (cell[i] - '0') * (pow(10,cell.size() - i -1));
+            }
+            cout << "rolNum:" << rolNum << "colNum:" << colNum << "\n";
+            return rolNum + colNum;
+        }
+        
+        void resetCell(string cell) {
+            setCell(cell,0);
+        }
+        
+        int getValue(string formula) {
+            int index = 0;
+            for(int i = 1; i < formula.size(); i++){
+                if(formula[i] == '+'){
+                    index = i;
+                    break;
+                }
+            }
+            string s1 = formula.substr(1, index-1);
+            int value1 = decode(s1);
+            int trueValue1 = value1>1000?this->data[value1]:value1;
+            string s2 = formula.substr(index+1);
+            int value2 = decode(s2);
+            int trueValue2 = value2>1000?this->data[value2]:value2;
+            cout << value1 << "%"<<value2<<"\n";
+            return trueValue1 + trueValue2;
+        }
+    };
+
 int main()
 {
     // MyClass m = MyClass();
@@ -70,9 +135,12 @@ int main()
 
 
     // test
-    vector<int> test {1,2,3};
-    Solution s;
-    s.sumOfBeauties(test);
+    // vector<int> test {1,2,3};
+    // Solution s;
+    // s.sumOfBeauties(test);
+
+    Spreadsheet s(12);
+    s.decode("0126");
 
     return 0;
 }
