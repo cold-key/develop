@@ -17,28 +17,37 @@ public:
         vector<string> result;
         for(int i = 1; i <= 3; i++){
             string firstStr = s.substr(0,i);
+            if(firstStr.length()<=0){
+                break;
+            }
             int firstStrNum = stoi(firstStr);
             if(firstStrNum < f[i-1][0] || firstStrNum > f[i-1][1]){
                 continue;
             }
             for(int j = 1; j <= 3; j++){
                 string secondStr = s.substr(i,j);
+                if(secondStr.length()<=0){
+                    break;
+                }
                 int secondNum = stoi(secondStr);
                 if(secondNum < f[j-1][0] || secondNum > f[j-1][1]){
                     continue;
                 }
                 for(int k = 1; k <= 3; k++){
                     string sanStr = s.substr(i+j,k);
+                    if(sanStr.length()<=0){
+                        break;
+                    }
                     int sanStrNum = stoi(sanStr);
                     if(sanStrNum < f[k-1][0] || sanStrNum > f[k-1][1]){
                         continue;
                     }
                     string siStr = s.substr(i+j+k);
-                    if(siStr.length()>3){
+                    if(siStr.length()>3 || siStr.length() <= 0){
                         continue;
                     }
                     int siStrNum = stoi(siStr);
-                    if(siStrNum < f[2][0] || siStrNum > f[2][1]){
+                    if(siStrNum < f[siStr.length() - 1][0] || siStrNum > f[siStr.length() - 1][1]){
                         continue;
                     }
                     result.push_back(firstStr+"."+secondStr+"."+sanStr+"."+siStr);
