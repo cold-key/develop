@@ -10,7 +10,7 @@ class Solution {
 public:
     int climbStairs(int n) {
         int vectorSize = (n+1)>=4?(n+1):4;
-        vector<int> step {vectorSize,0};
+        vector<int> step (vectorSize,0);
         step[0] = 0;
         step[1] = 1;
         step[2] = 2;
