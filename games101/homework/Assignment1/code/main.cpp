@@ -52,6 +52,11 @@ Eigen::Matrix4f get_projection_matrix(float eye_fov, float aspect_ratio,
     return projection;
 }
 
+Eigen::Matrix4f get_rotation(Vector3f axis, float angle) 
+{
+    Eigen::Matrix4f projection = Eigen::Matrix4f::Identity();
+}
+
 int main(int argc, const char** argv)
 {
     float angle = 0;
@@ -115,10 +120,10 @@ int main(int argc, const char** argv)
         std::cout << "frame count: " << frame_count++ << '\n';
 
         if (key == 'a') {
-            angle += 10;
+            angle += 1;
         }
         else if (key == 'd') {
-            angle -= 10;
+            angle -= 1;
         }
     }
 
