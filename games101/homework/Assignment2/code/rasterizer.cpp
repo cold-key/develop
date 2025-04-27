@@ -43,6 +43,24 @@ auto to_vec4(const Eigen::Vector3f& v3, float w = 1.0f)
 static bool insideTriangle(int x, int y, const Vector3f* _v)
 {   
     // TODO : Implement this function to check if the point (x, y) is inside the triangle represented by _v[0], _v[1], _v[2]
+    Vector3f p {x, y, 0};
+
+    int f = 1;
+    int i = 0;
+    while(i < 3){
+        Vector3f v0p = p - _v[i];
+        Vector3f v01 = _v[(i+1)%3] - _v[i];
+        int v01D = v0p.cross(v01)[2];
+        if(i == 0){
+            f = v01D;
+        }else if(f*v01D < 0){
+            return false;
+        }
+
+        i++;
+    }
+
+    return true;
 }
 
 static std::tuple<float, float, float> computeBarycentric2D(float x, float y, const Vector3f* v)
@@ -116,6 +134,11 @@ void rst::rasterizer::rasterize_triangle(const Triangle& t) {
     //z_interpolated *= w_reciprocal;
 
     // TODO : set the current pixel (use the set_pixel function) to the color of the triangle (use getColor function) if it should be painted.
+
+    // 找到三角形的矩形包围盒
+    int left = int(std::min({v[0][0],v[1][0],v[2][0]}));
+    int right = int(std::max({v[0][0],v[1][0],v[2][0]})) + 1;
+    // int top = 
 }
 
 void rst::rasterizer::set_model(const Eigen::Matrix4f& m)
