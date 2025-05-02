@@ -45,5 +45,6 @@
         "stdexcept": "cpp",
         "streambuf": "cpp",
         "typeinfo": "cpp"
-    }
+    },
+    "cmake.sourceDirectory": "E:/codeSpace/develop/cpp/learnCppNote/FuncOverload"
 }
