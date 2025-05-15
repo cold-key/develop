@@ -45,12 +45,12 @@ static bool insideTriangle(int x, int y, const Vector3f* _v)
     // TODO : Implement this function to check if the point (x, y) is inside the triangle represented by _v[0], _v[1], _v[2]
     Vector3f p {x, y, 0};
 
-    int f = 1;
+    float f = 1;
     int i = 0;
     while(i < 3){
         Vector3f v0p = p - _v[i];
         Vector3f v01 = _v[(i+1)%3] - _v[i];
-        int v01D = v0p.cross(v01)[2];
+        float v01D = v0p.cross(v01)[2];
         if(i == 0){
             f = v01D;
         }else if(f*v01D < 0){
@@ -138,7 +138,26 @@ void rst::rasterizer::rasterize_triangle(const Triangle& t) {
     // 找到三角形的矩形包围盒
     int left = int(std::min({v[0][0],v[1][0],v[2][0]}));
     int right = int(std::max({v[0][0],v[1][0],v[2][0]})) + 1;
-    // int top = 
+    int top = int(std::min({v[0][1],v[1][1],v[2][1]}));
+    int bottom = int(std::max({v[0][1],v[1][1],v[2][1]})) + 1;
+    // 遍历包围盒内的每个像素
+    for(int i = left; i <= right; i++){
+        for(int j = top; j <= bottom; j++){
+            // 判断像素是否在三角形内
+            if(insideTriangle(i, j, t.v)){
+                auto [alpha, beta, gamma] = computeBarycentric2D(i, j, t.v);
+                float w_reciprocal = 1.0/(alpha / v[0].w() + beta / v[1].w() + gamma / v[2].w());
+                float z_interpolated = alpha * v[0].z() / v[0].w() + beta * v[1].z() / v[1].w() + gamma * v[2].z() / v[2].w();
+                z_interpolated *= w_reciprocal;
+
+                int ind = get_index(i, j);
+                if(depth_buf[ind] > z_interpolated){
+                    depth_buf[ind] = z_interpolated;
+                    set_pixel(Eigen::Vector3f(i, j, 0), t.getColor());
+                }
+            }
+        }
+    }
 }
 
 void rst::rasterizer::set_model(const Eigen::Matrix4f& m)
