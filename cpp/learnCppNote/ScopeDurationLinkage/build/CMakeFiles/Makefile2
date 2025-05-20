@@ -44,19 +44,19 @@ cmake_force:
 SHELL = cmd.exe
 
 # The CMake executable.
-CMAKE_COMMAND = "C:\Program Files\CMake\bin\cmake.exe"
+CMAKE_COMMAND = D:\CMake\bin\cmake.exe
 
 # The command to remove a file.
-RM = "C:\Program Files\CMake\bin\cmake.exe" -E rm -f
+RM = D:\CMake\bin\cmake.exe -E rm -f
 
 # Escaping for special characters.
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = C:\Users\27763\develop\cpp\learnCppNote\ScopeDurationLinkage
+CMAKE_SOURCE_DIR = E:\codeSpace\develop\cpp\learnCppNote\ScopeDurationLinkage
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = C:\Users\27763\develop\cpp\learnCppNote\ScopeDurationLinkage\build
+CMAKE_BINARY_DIR = E:\codeSpace\develop\cpp\learnCppNote\ScopeDurationLinkage\build
 
 #=============================================================================
 # Directory level rules for the build root directory
@@ -80,14 +80,14 @@ clean: CMakeFiles/ScopeDurationLinkage.dir/clean
 CMakeFiles/ScopeDurationLinkage.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\ScopeDurationLinkage.dir\build.make CMakeFiles/ScopeDurationLinkage.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\ScopeDurationLinkage.dir\build.make CMakeFiles/ScopeDurationLinkage.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=C:\Users\27763\develop\cpp\learnCppNote\ScopeDurationLinkage\build\CMakeFiles --progress-num=1,2,3,4 "Built target ScopeDurationLinkage"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=E:\codeSpace\develop\cpp\learnCppNote\ScopeDurationLinkage\build\CMakeFiles --progress-num=1,2,3,4 "Built target ScopeDurationLinkage"
 .PHONY : CMakeFiles/ScopeDurationLinkage.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/ScopeDurationLinkage.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start C:\Users\27763\develop\cpp\learnCppNote\ScopeDurationLinkage\build\CMakeFiles 4
+	$(CMAKE_COMMAND) -E cmake_progress_start E:\codeSpace\develop\cpp\learnCppNote\ScopeDurationLinkage\build\CMakeFiles 4
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 CMakeFiles/ScopeDurationLinkage.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start C:\Users\27763\develop\cpp\learnCppNote\ScopeDurationLinkage\build\CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start E:\codeSpace\develop\cpp\learnCppNote\ScopeDurationLinkage\build\CMakeFiles 0
 .PHONY : CMakeFiles/ScopeDurationLinkage.dir/rule
 
 # Convenience name for target.

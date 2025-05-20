@@ -4,6 +4,10 @@
 struct PublicStruct{
     int x {};
     int y {};
+
+    void printThis(){
+        std::cout << "x: " << x << " y: " << y << std::endl;
+    }
 };
 
 class PrivateClass{
@@ -61,6 +65,10 @@ class ClassOne{
 };
 
 int main(){
+
+    PublicStruct ps;
+    ps.printThis();
+
     // PublicStruct* ps = new PublicStruct();
     // PrivateClass* pc = new PrivateClass();
 
@@ -77,9 +85,9 @@ int main(){
     // PrivateClass p3;
     // p3.printThis();
 
-    ClassOne c1 {1};
-    c1.printThis();
+    // ClassOne c1 {1};
+    // c1.printThis();
 
-    ClassOne c2  = c1;
+    // ClassOne c2  = c1;
     return 0;
 }

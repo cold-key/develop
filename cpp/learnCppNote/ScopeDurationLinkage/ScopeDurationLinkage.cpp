@@ -8,6 +8,8 @@ void cout(){
     std::cout<< "cout\n";
 }
 
+void externTestPrint();
+
 namespace mySpace{
     int x = 5;
 
@@ -98,8 +100,11 @@ int main(){
         std::cout<< x <<'\n';
     }
 
-    auto x {1.2};
-    std::cout<< x <<'\n';
+    auto autoX {1.2};
+    std::cout<< autoX <<'\n';
+
+    constantPrint();
+    externTestPrint();
 
     return 0;
 }
