@@ -110,7 +110,7 @@ class Spreadsheet {
             cout << value1 << "%"<<value2<<"\n";
             return trueValue1 + trueValue2;
         }
-    };
+};
 
 int main()
 {
@@ -139,8 +139,13 @@ int main()
     // Solution s;
     // s.sumOfBeauties(test);
 
-    Spreadsheet s(12);
-    s.decode("0126");
+    // Spreadsheet s(12);
+    // s.decode("0126");
+
+    // std::cout << "--------------------------" << "\n";
+
+    float n = 24;
+    cout << n;
 
     return 0;
 }
