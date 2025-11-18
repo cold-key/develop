@@ -1,165 +1,45 @@
-{
-    "ip": "172.16.0.7",
-    "domain": "",
-    "ws": "ws://172.16.0.7:8001/fight/6830",
-    "port": 6830,
-    "roomId": 20858,
-    "pwd": 319179
-},
-2,
+[LUA-print
+] [QTZ_INFO
+]: [S->C
+] rpc_client_brave_road_newbie_info(31,
 [
     {
-        "baseInfo": {
-            "uid": 29993,
-            "name": "内服号:29993",
-            "sex": 0,
-            "grade": 27,
-            "honor": 3000,
-            "icon": 2,
-            "iconFrame": 0,
-            "win": 0,
-            "lose": 0,
-            "vserverId": 10003,
-            "levelScore": 0,
-            "kingsMarkCount": 0,
-            "normalScore": 0,
-            "historyLevelScore": 0,
-            "maxHonor": 8000,
-            "activeTalentNum": 0,
-            "kingMatchTimes": 0,
-            "kingMatchBestRank": 0,
-            "achieveExp": 0,
-            "legionId": "",
-            "legionName": "",
-            "legionIcon": "",
-            "usingRole": 1002,
-            "royaleScore": 0,
-            "usingTitle": 0
-        },
-        "balls": [
+        "buyedInfoList": [
             {
-                "dbType": 39,
-                "lv": 16,
-                "talentSkill": 0,
-                "grade": 0
-            },
-            {
-                "dbType": 119,
-                "lv": 16,
-                "talentSkill": 0,
-                "grade": 0
-            },
-            {
-                "dbType": 32,
-                "lv": 16,
-                "talentSkill": 0,
-                "grade": 0
-            },
-            {
-                "dbType": 87,
-                "lv": 16,
-                "talentSkill": 0,
-                "grade": 0
-            },
-            {
-                "dbType": 88,
-                "lv": 16,
-                "talentSkill": 0,
-                "grade": 0
+                "selectBallId": 39,
+                "id": 19
             }
         ],
-        "cfg": {
-            "hp": 3,
-            "sp": 100,
-            "firstSp": 10
-        },
-        "skinId": 0,
-        "rewardBuffState": 0,
-        "monsterSkinId": 0,
-        "ballFrame": 0,
-        "ballLight": 0,
-        "ballPatterns": [],
-        "startAnimation": 0,
-        "endAnimation": 0,
-        "roleId": 0,
-        "dvdSkin": 0
+        "index": 4
     },
     {
-        "baseInfo": {
-            "uid": 29994,
-            "name": "内服号:29994",
-            "sex": 0,
-            "grade": 27,
-            "honor": 3000,
-            "icon": 2,
-            "iconFrame": 0,
-            "win": 0,
-            "lose": 0,
-            "vserverId": 10003,
-            "levelScore": 0,
-            "kingsMarkCount": 0,
-            "normalScore": 0,
-            "historyLevelScore": 0,
-            "maxHonor": 10000,
-            "activeTalentNum": 0,
-            "kingMatchTimes": 0,
-            "kingMatchBestRank": 0,
-            "achieveExp": 0,
-            "legionId": "",
-            "legionName": "",
-            "legionIcon": "",
-            "usingRole": 1001,
-            "royaleScore": 0,
-            "usingTitle": 0
-        },
-        "balls": [
+        "buyedInfoList": [
             {
-                "dbType": 108,
-                "lv": 16,
-                "talentSkill": 0,
-                "grade": 0
-            },
-            {
-                "dbType": 105,
-                "lv": 16,
-                "talentSkill": 0,
-                "grade": 0
-            },
-            {
-                "dbType": 119,
-                "lv": 16,
-                "talentSkill": 0,
-                "grade": 0
-            },
-            {
-                "dbType": 98,
-                "lv": 16,
-                "talentSkill": 0,
-                "grade": 0
-            },
-            {
-                "dbType": 88,
-                "lv": 16,
-                "talentSkill": 0,
-                "grade": 0
+                "selectBallId": 39,
+                "id": 17
             }
         ],
-        "cfg": {
-            "hp": 3,
-            "sp": 100,
-            "firstSp": 10
-        },
-        "skinId": 0,
-        "rewardBuffState": 0,
-        "monsterSkinId": 0,
-        "ballFrame": 0,
-        "ballLight": 0,
-        "ballPatterns": [],
-        "startAnimation": 0,
-        "endAnimation": 0,
-        "roleId": 0,
-        "dvdSkin": 0
+        "index": 2
+    },
+    {
+        "buyedInfoList": [
+            {
+                "selectBallId": 39,
+                "id": 16
+            }
+        ],
+        "index": 1
     }
 ],
-18,
-0
+[
+    {
+        "buyedInfoList": [
+            {
+                "selectBallId": 31,
+                "id": 2
+            }
+        ],
+        "index": 2
+    }
+],
+0)

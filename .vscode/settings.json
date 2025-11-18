@@ -3,7 +3,9 @@
         "*.txt": "lua",
         "iostream": "cpp",
         "ostream": "cpp",
-        "vector": "cpp"
+        "vector": "cpp",
+        "unordered_set": "cpp"
     },
-    "editor.snippetSuggestions": "bottom"
+    "editor.snippetSuggestions": "bottom",
+    "cmake.sourceDirectory": "D:/dbSpace/develop/develop/games101/homework/Assignment5/Assignment5"
 }

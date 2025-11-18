@@ -21,6 +21,8 @@ using namespace std;
 #include<unordered_map>
 #include<algorithm>
 #include<cmath>
+#include<unordered_set>
+#include<cstdlib>
 class Solution {
     public:
         int sumOfBeauties(vector<int>& nums) {
@@ -144,8 +146,19 @@ int main()
 
     // std::cout << "--------------------------" << "\n";
 
-    float n = 24;
-    cout << n;
+    // float n = 24;
+    // cout << n;
+
+    // unordered_set<int> test;
+    // test.insert(1);
+    // std::cout << test.count(1) << std::endl;
+    // std::cout << test.count(2) << std::endl;
+
+    int a = 1;
+    int b = 0;
+    int c = 123123;
+    c = a / b;
+    std::cout << c;
 
     return 0;
 }
