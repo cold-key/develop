@@ -2,7 +2,7 @@
     "groupId": 1,
     "stage": 2,
     "initialGroupTopN": 64,
-    "currentGroupTopN": 2,
+    "currentGroupTopN": 4,
     "groupTopNInfo": [
         {
             "groupTopN": 64,
@@ -1493,7 +1493,7 @@
                             "matchId": 0
                         }
                     ],
-                    "finalWinUid": 29993,
+                    "finalWinUid": -1,
                     "fightRecordInfo": []
                 },
                 {
@@ -1517,7 +1517,7 @@
                             "matchId": 0
                         }
                     ],
-                    "finalWinUid": 0,
+                    "finalWinUid": -1,
                     "fightRecordInfo": []
                 }
             ]
@@ -1538,7 +1538,7 @@
                             "matchId": 0
                         },
                         {
-                            "uid": 29993,
+                            "uid": 0,
                             "readyTs": 0,
                             "normalBeBetCnt": 0,
                             "doubleBeBetCnt": 0,
@@ -1547,7 +1547,7 @@
                             "matchId": 0
                         }
                     ],
-                    "finalWinUid": -1,
+                    "finalWinUid": 0,
                     "fightRecordInfo": []
                 }
             ]
