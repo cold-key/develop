@@ -34,12 +34,14 @@ public:
         };
         long long tempHashValue = 0;
         string minStr;
+        int minStrStartIndex = 0;
         for(int i = k; i > 0; i--){
             tempHashValue += val(s[s.size() - 1 - (k - i)]) * (long long)qpow(power, i - 1, modulo);
             tempHashValue %= modulo;
         }
         if(tempHashValue == hashValue){
-            minStr = s.substr(s.size() - k);
+            // minStr = s.substr(s.size() - k);
+            minStrStartIndex = s.size() - k;
         }
         // std::cout << "firsr tempHashValue:" << tempHashValue << endl;
         for(int i = s.size() - k - 1; i >= 0; i--){
@@ -47,10 +49,12 @@ public:
             subTempHashValue = (subTempHashValue * (power % modulo)) % modulo;
             tempHashValue = (subTempHashValue + (val(s[i]) % modulo)) % modulo;
             if(tempHashValue == hashValue){
-                minStr = s.substr(i, k);
+                // minStr = s.substr(i, k);
+                minStrStartIndex = i;
             }
             // std::cout << "str:" << s.substr(i, k) <<"\thashValue:"<<tempHashValue<<endl;
         }
+        minStr = s.substr(minStrStartIndex, k);
         return minStr;
     }
 };
