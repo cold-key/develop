@@ -1,5 +1,3 @@
-1. 一天两道LeetCode Mid or Hard (C++)
+1. LeetCode(随机题单 看当天时间 题数 > 3)
 2. OpenGL -> Vulkan
 3. Unreal
-
-LeetCode: 385,2141
