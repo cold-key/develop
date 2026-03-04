@@ -11,10 +11,7 @@ class Solution {
 public:
     char findKthBit(int n, int k) {
         int result = 0;
-        int s_n_len = 1;
-        for(int i = 1 ; i < n; i++){
-            s_n_len = 2 * s_n_len + 1;
-        }
+        int s_n_len = (1 << n + 1) - 1;;
         // std::cout << s_n_len << std::endl;
         bool isReverseCode = false;
         int reverseCnt = 0;
