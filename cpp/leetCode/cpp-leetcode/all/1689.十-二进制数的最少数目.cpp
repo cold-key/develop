@@ -4,6 +4,10 @@
  * [1689] 十-二进制数的最少数目
  */
 
+#include<string>
+
+using namespace std;
+
 // @lc code=start
 class Solution {
 public:
