@@ -1,5 +1,6 @@
 #include<vector>
 #include<iostream>
+#include<string>
 
 // LeetCode刷题本地调试用的tool.h
 
