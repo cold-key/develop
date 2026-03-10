@@ -6,7 +6,7 @@
 
 // #include "lib/tool.h"
 
-
+#include<iostream>
 #include<algorithm>
 #include<string>
 
@@ -37,3 +37,28 @@ public:
 };
 // @lc code=end
 
+// std::min <algorithm> 头文件提供的模板函数
+
+class Point{
+public:
+    int x;
+    int y;
+    Point(int x, int y): x {x},y {y}{};
+    bool operator<(const Point& p) const{
+        return x < p.x;
+    }
+};
+
+int main(){
+    std::cout << std::min(1,2) << '\n';
+
+    Point p1{1,2};
+    Point p2{3,4};
+    Point minXP = std::min(p1,p2);
+
+    Point minYP = std::min(p1,p2,[](Point p1,Point p2){
+        return p1.y < p2.y;
+    });
+    std::stoi("12",nullptr);
+    return 0;
+}
