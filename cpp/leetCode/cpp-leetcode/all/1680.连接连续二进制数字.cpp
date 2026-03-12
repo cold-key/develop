@@ -28,6 +28,8 @@ public:
 // 加法和乘法可以中间取模
 // (a + b) % MOD = (a % MOD + b % MOD) % MOD
 
+// https://leetcode.cn/discuss/post/3584387/fen-xiang-gun-mo-yun-suan-de-shi-jie-dan-7xgu/
+
 int main(){
     Solution s;
     std::cout << s.concatenatedBinary(12);
