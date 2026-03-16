@@ -4,24 +4,28 @@
  * [799] 香槟塔
  */
 
+ #include<iostream>
+
 // @lc code=start
 class Solution {
 public:
     double champagneTower(int poured, int query_row, int query_glass) {
-        int remainingPoured = poured;
+        double remainingPoured = poured;
         double ans = 0;
-        int i = 1;
+        int i = 0;
         for(; remainingPoured > 0 ; i++){
+            std::cout << i << " , " << remainingPoured << std::endl;
             if(query_row == i){
-                if(remainingPoured >= query_row){
+                if(remainingPoured >= query_row + 1){
                     ans = 1;
                     break;
                 }else{
-                    ans = (remainingPoured / (i - 1))/(query_glass == 1 || query_glass == i ? 2 : 1);
+                    int tmp_i = i;
+                    // while()
                     break;
                 }
             }else{
-                remainingPoured -= i;
+                remainingPoured -= (i+1);
             }
         }
         if(i < query_row){
@@ -32,3 +36,8 @@ public:
 };
 // @lc code=end
 
+int main(){
+    Solution s;
+    std::cout << s.champagneTower(25,6,1);
+    return 0;
+}
