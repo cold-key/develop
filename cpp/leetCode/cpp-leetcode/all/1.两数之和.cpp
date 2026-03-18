@@ -5,6 +5,9 @@
  */
 
  #include <unordered_map>
+ #include<vector>
+
+ using namespace std;
 
 // @lc code=start
 class Solution {
