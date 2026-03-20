@@ -133,12 +133,17 @@
     <ClCompile Include="HelloTriangle.cpp" />
     <ClCompile Include="BaseComponent.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="ShaderTest.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="HelloTriangle.h" />
     <ClInclude Include="BaseComponent.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="ShaderTest.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shaderTest.fs" />
+    <None Include="shaderTest.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

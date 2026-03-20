@@ -25,6 +25,9 @@
     <Filter Include="源文件\Base">
       <UniqueIdentifier>{5607d200-4db8-4845-88a6-70d8089b76c1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="资源文件\Shader">
+      <UniqueIdentifier>{90c3a071-6484-43fd-8a63-4f3e874e4253}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -33,7 +36,7 @@
     <ClCompile Include="glad.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Shader.cpp">
+    <ClCompile Include="ShaderTest.cpp">
       <Filter>源文件\ChapterOne</Filter>
     </ClCompile>
     <ClCompile Include="BaseComponent.cpp">
@@ -44,7 +47,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Shader.h">
+    <ClInclude Include="ShaderTest.h">
       <Filter>头文件\ChapterOne</Filter>
     </ClInclude>
     <ClInclude Include="BaseComponent.h">
@@ -53,5 +56,16 @@
     <ClInclude Include="HelloTriangle.h">
       <Filter>头文件\ChapterOne</Filter>
     </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>头文件\Base</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shaderTest.fs">
+      <Filter>资源文件\Shader</Filter>
+    </None>
+    <None Include="shaderTest.vs">
+      <Filter>资源文件\Shader</Filter>
+    </None>
   </ItemGroup>
 </Project>

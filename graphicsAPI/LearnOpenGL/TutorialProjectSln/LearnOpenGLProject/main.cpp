@@ -2,8 +2,11 @@
 #include <GLFW\glfw3.h>
 #include<iostream>
 #include "HelloTriangle.h"
+#include "ShaderTest.h"
 
 int main() {
-	HelloTriangle obj;
-	obj.run();
+	//HelloTriangle triangleTest;
+	//triangleTest.run();
+	ShaderTest shaderTest;
+	shaderTest.run();
 }
