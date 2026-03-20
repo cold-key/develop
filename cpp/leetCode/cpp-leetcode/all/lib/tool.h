@@ -2,6 +2,7 @@
 #include<iostream>
 #include<string>
 #include<algorithm>
+#include<unordered_set>
 
 // LeetCode刷题本地调试用的tool.h
 
@@ -28,6 +29,14 @@ void printLinkList(ListNode* head){
         p = p->next;
     }
     std::cout << "\n";
+}
+
+template<typename T>
+void printUnorderedSet(std::unordered_set<T>& set){
+    for(auto it = set.begin(); it != set.end(); ++it){
+        std::cout << *it << " , ";
+    }
+    std::cout << std::endl;
 }
 
 // std::vector<int> getVector1ByLeetCodeStr
