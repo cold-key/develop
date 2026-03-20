@@ -13,6 +13,18 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="头文件\ChapterOne">
+      <UniqueIdentifier>{f6999e37-2e68-46da-961d-0828a5e8f983}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\ChapterOne">
+      <UniqueIdentifier>{ffb5907d-d041-41fa-b0c7-8a41c0fabd21}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Base">
+      <UniqueIdentifier>{3df047e3-47ed-461f-a6d9-a5b92457bf22}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Base">
+      <UniqueIdentifier>{5607d200-4db8-4845-88a6-70d8089b76c1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -21,5 +33,25 @@
     <ClCompile Include="glad.c">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>源文件\ChapterOne</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseComponent.cpp">
+      <Filter>源文件\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="HelloTriangle.cpp">
+      <Filter>源文件\ChapterOne</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Shader.h">
+      <Filter>头文件\ChapterOne</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseComponent.h">
+      <Filter>头文件\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="HelloTriangle.h">
+      <Filter>头文件\ChapterOne</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
