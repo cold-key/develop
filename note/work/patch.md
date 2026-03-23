@@ -5,7 +5,7 @@
 2. 切换到发布窗口
    ta deploy
 
-3. 选定分支更新（大推服 dbpro , 海外服 dbglobal）
+3. 选定分支更新（大推服 dbpro , 海外服 dbglobal,国内测试服dbtest , 海外测试服dbgtest）
    ./rsync_patch_dbpro.sh
    ./rsync_new_encrypt_patch_dbpro.sh
 
@@ -46,6 +46,7 @@
    提交
    git commit -m "do"
 
+   推送
    git push
 
 7. 把对应的配置同步到cdn
