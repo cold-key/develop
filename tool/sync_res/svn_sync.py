@@ -150,8 +150,15 @@ class SvnSyncTool(object):
         _parse_ymd(start_date)
         _parse_ymd(end_date)
 
+        # svn 的 {YYYY-MM-DD} 解析为当天午夜 00:00:00，
+        # 所以 {end_date} 不包含结束日期当天的提交。
+        # 将 end_date 加一天，使其变成闭区间 [start, end]。
+        end_dt = _parse_ymd(end_date)
+        end_dt_inclusive = end_dt + datetime.timedelta(days=1)
+        end_date_inclusive = end_dt_inclusive.strftime("%Y-%m-%d")
+
         # svn 支持用 {YYYY-MM-DD}:{YYYY-MM-DD} 做 revision range
-        rev_range = "{{{0}}}:{{{1}}}".format(start_date, end_date)
+        rev_range = "{{{0}}}:{{{1}}}".format(start_date, end_date_inclusive)
         # -v 会让 xml 里包含 paths/path（对应文件级变更），否则可能只剩提交信息
         cmd = ["svn", "log", "--xml", "-v", "-r", rev_range, self.source_path]
         xml_text = _run_svn(cmd)
