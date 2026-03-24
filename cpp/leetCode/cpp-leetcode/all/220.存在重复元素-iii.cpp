@@ -6,6 +6,7 @@
 
 #include<cmath>
 #include<vector>
+#include<set>
 
 using namespace std;
 
@@ -13,16 +14,17 @@ using namespace std;
 class Solution {
 public:
     bool containsNearbyAlmostDuplicate(vector<int>& nums, int indexDiff, int valueDiff) {
+        std::set<int> s;
         for(int i = 0; i < nums.size(); i++){
-            int leftIndex = i - indexDiff > 0 ? i - indexDiff : 0;
-            for(int j = i - 1; j >= leftIndex; j--){
-                if(std::abs(nums[j] - nums[i]) <= valueDiff){
-                    return true;
-                }
-            }
+            auto it = s.lower_bound(nums[i] - valueDiff);
+            if(it != s.end() && *it <= valueDiff + nums[i]) return true;
+            s.insert(nums[i]);
+            if(i - indexDiff >= 0) s.erase(nums[i - indexDiff]);
         }
         return false;
     }
 };
 // @lc code=end
 
+// 希望使用一个「有序集合」去维护长度为 k 的滑动窗口内的数，该数据结构最好支持高效「查询」与「插入/删除」操作
+// TODO AVL树和红黑树
