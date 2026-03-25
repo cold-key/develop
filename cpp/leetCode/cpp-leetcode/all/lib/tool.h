@@ -39,6 +39,14 @@ void printUnorderedSet(std::unordered_set<T>& set){
     std::cout << std::endl;
 }
 
+template<typename K, typename V>
+void printUnorderedMap(std::unordered_map<K,V>& map){
+    for(auto it = map.begin(); it != map.end(); ++it){
+        std::cout << it->first << ":" << it->second << " , ";
+    }
+    std::cout << std::endl;
+}
+
 // std::vector<int> getVector1ByLeetCodeStr
 
 //
