@@ -34,3 +34,5 @@ public:
 //     std::string str = "cabaabac";
 //     std::cout << s.minimumLength(str);
 // }
+
+// 考虑诸多特殊用例 "aaaaa" "a" "cabaabac" "abcacba" 带来的边界检查
