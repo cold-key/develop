@@ -36,36 +36,40 @@
     <ClCompile Include="glad.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="ShaderTest.cpp">
-      <Filter>源文件\ChapterOne</Filter>
+    <ClCompile Include="src\base\BaseComponent.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="BaseComponent.cpp">
-      <Filter>源文件\Base</Filter>
+    <ClCompile Include="src\chapterOne\HelloTriangle.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="HelloTriangle.cpp">
-      <Filter>源文件\ChapterOne</Filter>
+    <ClCompile Include="src\chapterOne\ShaderTest.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\chapterOne\TextureTest.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ShaderTest.h">
-      <Filter>头文件\ChapterOne</Filter>
+    <ClInclude Include="src\base\BaseComponent.h">
+      <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="BaseComponent.h">
-      <Filter>头文件\Base</Filter>
+    <ClInclude Include="src\base\Shader.h">
+      <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="HelloTriangle.h">
-      <Filter>头文件\ChapterOne</Filter>
+    <ClInclude Include="src\chapterOne\HelloTriangle.h">
+      <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Shader.h">
-      <Filter>头文件\Base</Filter>
+    <ClInclude Include="src\chapterOne\ShaderTest.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\chapterOne\TextureTest.h">
+      <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaderTest.fs">
-      <Filter>资源文件\Shader</Filter>
-    </None>
-    <None Include="shaderTest.vs">
-      <Filter>资源文件\Shader</Filter>
-    </None>
+    <None Include="src\shaderSrc\shaderTest.fs" />
+    <None Include="src\shaderSrc\shaderTest.vs" />
+    <None Include="src\shaderSrc\texture_test_shader.fs" />
+    <None Include="src\shaderSrc\texture_test_shader.vs" />
   </ItemGroup>
 </Project>

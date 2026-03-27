@@ -1,5 +1,5 @@
-﻿#include "HelloTriangle.h"
-#include "BaseComponent.h"
+﻿#include "chapterOne/HelloTriangle.h"
+#include "base/BaseComponent.h"
 
 int HelloTriangle::run() {
 	GLFWwindow* window = BaseComponent::initWidget();

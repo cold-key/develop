@@ -1,6 +1,6 @@
 ﻿#include "ShaderTest.h"
-#include "BaseComponent.h"
-#include "Shader.h"
+#include "base/BaseComponent.h"
+#include "base/Shader.h"
 
 int ShaderTest::run() {
 	GLFWwindow* window =  BaseComponent::initWidget();
@@ -93,7 +93,7 @@ int ShaderTest::run() {
 	//glDeleteShader(vertexShader);
 	//glDeleteShader(fragmentShader);
 
-	Shader ourShader("shaderTest.vs","shaderTest.fs");
+	Shader ourShader("src/shaderSrc/shaderTest.vs","src/shaderSrc/shaderTest.fs");
 
 	while (!glfwWindowShouldClose(window))
 	{
