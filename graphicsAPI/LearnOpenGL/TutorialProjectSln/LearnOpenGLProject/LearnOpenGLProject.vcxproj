@@ -107,6 +107,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -130,20 +131,24 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="glad.c" />
-    <ClCompile Include="HelloTriangle.cpp" />
-    <ClCompile Include="BaseComponent.cpp" />
+    <ClCompile Include="src\base\BaseComponent.cpp" />
+    <ClCompile Include="src\chapterOne\HelloTriangle.cpp" />
+    <ClCompile Include="src\chapterOne\ShaderTest.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="ShaderTest.cpp" />
+    <ClCompile Include="src\chapterOne\TextureTest.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="HelloTriangle.h" />
-    <ClInclude Include="BaseComponent.h" />
-    <ClInclude Include="Shader.h" />
-    <ClInclude Include="ShaderTest.h" />
+    <ClInclude Include="src\base\BaseComponent.h" />
+    <ClInclude Include="src\base\Shader.h" />
+    <ClInclude Include="src\chapterOne\HelloTriangle.h" />
+    <ClInclude Include="src\chapterOne\ShaderTest.h" />
+    <ClInclude Include="src\chapterOne\TextureTest.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaderTest.fs" />
-    <None Include="shaderTest.vs" />
+    <None Include="src\shaderSrc\shaderTest.fs" />
+    <None Include="src\shaderSrc\shaderTest.vs" />
+    <None Include="src\shaderSrc\texture_test_shader.vs" />
+    <None Include="src\shaderSrc\texture_test_shader.fs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
