@@ -5,6 +5,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "base/stb_image.h"
 
+#include<iostream>
+
 int TextureTest::run() {
 	GLFWwindow* window = BaseComponent::initWidget();
 
@@ -19,18 +21,30 @@ int TextureTest::run() {
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	stbi_image_free(data);
 
+	float borderColor[] = { 1.0f, 1.0f, 0.0f, 1.0f };
 	unsigned char* data1 = stbi_load("res/img/awesomeface.png", &width, &height, &nrChannels, 0);
 	unsigned int texture1;
 	glGenTextures(1, &texture1);
 	glBindTexture(GL_TEXTURE_2D, texture1);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	//glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data1);
@@ -70,6 +84,9 @@ int TextureTest::run() {
 
 	Shader ourShader("src/shaderSrc/texture_test_shader.vs", "src/shaderSrc/texture_test_shader.fs");
 
+	double scale = 0.0;
+	double modNum = 3;
+
 	while (!glfwWindowShouldClose(window))
 	{
 		BaseComponent::processInput(window);
@@ -80,6 +97,11 @@ int TextureTest::run() {
 		ourShader.use();
 		glUniform1i(glGetUniformLocation(ourShader.ID, "texture1"), 0); // 手动设置
 		ourShader.setInt("texture2", 1); // 或者使用着色器类设置
+
+		scale += 0.0001;
+		scale = scale - modNum * int(scale / modNum);
+		//std::cout << scale << std::endl;
+		ourShader.setFloat("scale", scale); // 或者使用着色器类设置
 
 		glActiveTexture(GL_TEXTURE0); // 在绑定纹理之前先激活纹理单元,如果没有这行代码默认也会激活纹理单元0
 		glBindTexture(GL_TEXTURE_2D, texture);
