@@ -132,10 +132,12 @@
   <ItemGroup>
     <ClCompile Include="glad.c" />
     <ClCompile Include="src\base\BaseComponent.cpp" />
+    <ClCompile Include="src\base\stb_image.cpp" />
     <ClCompile Include="src\chapterOne\HelloTriangle.cpp" />
     <ClCompile Include="src\chapterOne\ShaderTest.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="src\chapterOne\TextureTest.cpp" />
+    <ClCompile Include="src\chapterOne\TransformationsTest.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\base\BaseComponent.h" />
@@ -143,12 +145,15 @@
     <ClInclude Include="src\chapterOne\HelloTriangle.h" />
     <ClInclude Include="src\chapterOne\ShaderTest.h" />
     <ClInclude Include="src\chapterOne\TextureTest.h" />
+    <ClInclude Include="src\chapterOne\TransformationsTest.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\shaderSrc\shaderTest.fs" />
     <None Include="src\shaderSrc\shaderTest.vs" />
     <None Include="src\shaderSrc\texture_test_shader.vs" />
     <None Include="src\shaderSrc\texture_test_shader.fs" />
+    <None Include="src\shaderSrc\transformations_test_shader.fs" />
+    <None Include="src\shaderSrc\transformations_test_shader.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
