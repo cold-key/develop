@@ -57,6 +57,9 @@
     <ClCompile Include="src\chapterOne\CoordinatesTest.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="src\chapterOne\CameraTest.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\base\BaseComponent.h">
@@ -78,6 +81,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\chapterOne\CoordinatesTest.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\chapterOne\CameraTest.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

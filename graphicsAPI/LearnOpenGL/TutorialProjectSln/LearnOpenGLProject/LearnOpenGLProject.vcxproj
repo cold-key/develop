@@ -130,6 +130,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\chapterOne\CameraTest.cpp" />
     <ClCompile Include="src\chapterOne\CoordinatesTest.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="src\base\BaseComponent.cpp" />
@@ -141,6 +142,7 @@
     <ClCompile Include="src\chapterOne\TransformationsTest.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\chapterOne\CameraTest.h" />
     <ClInclude Include="src\chapterOne\CoordinatesTest.h" />
     <ClInclude Include="src\base\BaseComponent.h" />
     <ClInclude Include="src\base\Shader.h" />
