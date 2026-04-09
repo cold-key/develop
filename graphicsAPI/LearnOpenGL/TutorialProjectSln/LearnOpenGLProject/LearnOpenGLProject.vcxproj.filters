@@ -54,6 +54,9 @@
     <ClCompile Include="src\chapterOne\TransformationsTest.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="src\chapterOne\CoordinatesTest.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\base\BaseComponent.h">
@@ -74,6 +77,9 @@
     <ClInclude Include="src\chapterOne\TransformationsTest.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="src\chapterOne\CoordinatesTest.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\shaderSrc\shaderTest.fs" />
@@ -82,5 +88,7 @@
     <None Include="src\shaderSrc\texture_test_shader.vs" />
     <None Include="src\shaderSrc\transformations_test_shader.vs" />
     <None Include="src\shaderSrc\transformations_test_shader.fs" />
+    <None Include="src\shaderSrc\coordinates_test_shader.vs" />
+    <None Include="src\shaderSrc\coordinates_test_shader.fs" />
   </ItemGroup>
 </Project>

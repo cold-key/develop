@@ -5,6 +5,7 @@
 #include "chapterOne/ShaderTest.h"
 #include "chapterOne/TextureTest.h"
 #include "chapterOne/TransformationsTest.h"
+#include "chapterOne/CoordinatesTest.h"
 
 int main() {
 	//HelloTriangle triangleTest;
@@ -13,6 +14,8 @@ int main() {
 	//shaderTest.run();
 	//TextureTest textureTest;
 	//textureTest.run();
-	TransformationsTest transformationsTest;
-	transformationsTest.run();
+	//TransformationsTest transformationsTest;
+	//transformationsTest.run();
+	CoordinatesTest coordinatesTest;
+	coordinatesTest.run();
 }
