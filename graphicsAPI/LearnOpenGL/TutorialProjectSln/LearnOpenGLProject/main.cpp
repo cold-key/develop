@@ -6,6 +6,7 @@
 #include "chapterOne/TextureTest.h"
 #include "chapterOne/TransformationsTest.h"
 #include "chapterOne/CoordinatesTest.h"
+#include "chapterOne/CameraTest.h"
 
 int main() {
 	//HelloTriangle triangleTest;
@@ -16,6 +17,8 @@ int main() {
 	//textureTest.run();
 	//TransformationsTest transformationsTest;
 	//transformationsTest.run();
-	CoordinatesTest coordinatesTest;
-	coordinatesTest.run();
+	//CoordinatesTest coordinatesTest;
+	//coordinatesTest.run();
+	CameraTest cameraTest;
+	cameraTest.run();
 }
