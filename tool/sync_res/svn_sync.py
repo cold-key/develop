@@ -30,11 +30,8 @@ import xml.etree.ElementTree as ET
 DEFAULT_SOURCE_PATH = r"D:\a2\assets\branches\dragon_ball_trunk\cocos_studio"
 DEFAULT_SYNC_TARGET_PATH = r"D:\a2\assets\branches\dragon_ball_abroad_trunk\cocos_studio"
 
-# Python2：用这个统一判断“unicode 字符串”
-try:
-    unicode_type = unicode
-except NameError:
-    unicode_type = str
+# Python2/3：统一判断“文本字符串”类型
+unicode_type = type(u"")
 
 # Python2 在某些环境下 sys.stdout/sys.stderr 编码可能是 ascii，
 # 导致 argparse 输出中文 help 时抛 UnicodeEncodeError。
@@ -43,6 +40,30 @@ try:
     sys.stderr = codecs.getwriter("utf-8")(sys.stderr)
 except Exception:
     pass
+
+
+def _print_line(message, stream=None):
+    stream = stream or sys.stdout
+
+    if not isinstance(message, unicode_type):
+        try:
+            message = message.decode("utf-8", "replace")
+        except Exception:
+            message = unicode_type(message)
+
+    try:
+        stream.write(message)
+        stream.write(u"\n")
+    except Exception:
+        encoding = getattr(stream, "encoding", None) or "utf-8"
+        data = message.encode(encoding, "replace")
+        stream.write(data)
+        stream.write("\n")
+
+    try:
+        stream.flush()
+    except Exception:
+        pass
 
 
 def _parse_ymd(s):
@@ -346,7 +367,7 @@ class SvnSyncTool(object):
 
         if not os.path.exists(target_path):
             if dry_run:
-                print("[dry-run] 目标目录不存在，将创建: {0}".format(target_path))
+                _print_line("[dry-run] 目标目录不存在，将创建: {0}".format(target_path))
             else:
                 os.makedirs(target_path)
 
@@ -377,7 +398,7 @@ class SvnSyncTool(object):
                 dst = _join_root_rel(target_path, dst_rel)
 
                 if dry_run:
-                    print(
+                    _print_line(
                         "[dry-run] ({0}/{1}) COPY {2} (final_state={3})".format(
                             idx + 1, total_copy, file_path, final_state
                         )
@@ -389,14 +410,14 @@ class SvnSyncTool(object):
                     os.makedirs(dst_dir)
 
                 if not os.path.exists(src):
-                    print("[warn] 源文件不存在，跳过: {0} (final_state={1})".format(src, final_state))
+                    _print_line("[warn] 源文件不存在，跳过: {0} (final_state={1})".format(src, final_state))
                     continue
 
                 # SVN 日志在 --verbose(-v) 下可能也会输出“目录项”（如 cocosstudio/.../ticket_discount），
                 # 此时不要用 copy2 当成文件拷贝，改为只创建目录结构即可。
                 if os.path.isdir(src):
                     if dry_run:
-                        print("[dry-run] ({0}/{1}) MKDIR {2}".format(idx + 1, total_copy, dst))
+                        _print_line("[dry-run] ({0}/{1}) MKDIR {2}".format(idx + 1, total_copy, dst))
                     else:
                         if not os.path.exists(dst):
                             os.makedirs(dst)
@@ -408,7 +429,7 @@ class SvnSyncTool(object):
                 # 只提示，不实际删除
                 for item in deleted_list:
                     file_path = str(item.get("file_path", "")).replace("\\", "/").lstrip("/")
-                    print("[skip] deleted 不同步删除（需要加 --sync-delete）: {0}".format(file_path))
+                    _print_line("[skip] deleted 不同步删除（需要加 --sync-delete）: {0}".format(file_path))
                 return
 
             total_del = len(deleted_list)
@@ -418,7 +439,7 @@ class SvnSyncTool(object):
                 dst_rel = _strip_root_prefix_overlap(target_path, file_path)
                 dst = _join_root_rel(target_path, dst_rel)
                 if dry_run:
-                    print("[dry-run] ({0}/{1}) DELETE {2}".format(idx + 1, total_del, file_path))
+                    _print_line("[dry-run] ({0}/{1}) DELETE {2}".format(idx + 1, total_del, file_path))
                     continue
 
                 if not os.path.exists(dst):
@@ -452,7 +473,7 @@ class SvnSyncTool(object):
 
             if change_type in ("A", "M"):
                 if dry_run:
-                    print(
+                    _print_line(
                         "[dry-run] ({0}/{1}) COPY {2} ({3}) rev={4} author={5} date={6}".format(
                             idx + 1, total, file_path, change_type, revision, author, date
                         )
@@ -464,7 +485,7 @@ class SvnSyncTool(object):
                     os.makedirs(dst_dir)
 
                 if not os.path.exists(src):
-                    print("[warn] 源文件不存在，跳过: {0} (来自 {1} rev={2})".format(src, file_path, revision))
+                    _print_line("[warn] 源文件不存在，跳过: {0} (来自 {1} rev={2})".format(src, file_path, revision))
                     continue
 
                 shutil.copy2(src, dst)
@@ -472,11 +493,11 @@ class SvnSyncTool(object):
 
             if change_type == "D":
                 if not sync_delete:
-                    print("[skip] D 不同步删除（需要加 --sync-delete）: {0} rev={1}".format(file_path, revision))
+                    _print_line("[skip] D 不同步删除（需要加 --sync-delete）: {0} rev={1}".format(file_path, revision))
                     continue
 
                 if dry_run:
-                    print(
+                    _print_line(
                         "[dry-run] ({0}/{1}) DELETE {2} rev={3} author={4} date={5}".format(
                             idx + 1, total, file_path, revision, author, date
                         )
@@ -492,7 +513,7 @@ class SvnSyncTool(object):
                     shutil.rmtree(dst)
                 continue
 
-            print("[skip] 未识别变更类型，跳过: {0} type={1} rev={2}".format(file_path, change_type, revision))
+            _print_line("[skip] 未识别变更类型，跳过: {0} type={1} rev={2}".format(file_path, change_type, revision))
 
 
 def main(argv=None):
@@ -534,7 +555,7 @@ def main(argv=None):
     if args.cmd == "log":
         tool = SvnSyncTool(args.source)
         tool.export_log(start_date=args.start, end_date=args.end, output_json=args.output)
-        print("导出完成: {0}".format(args.output))
+        _print_line("导出完成: {0}".format(args.output))
         return 0
 
     if args.cmd == "sync":
@@ -547,7 +568,7 @@ def main(argv=None):
             source_override=args.source,
             copy_added_csd=bool(args.copy_added_csd),
         )
-        print("同步处理完成")
+        _print_line("同步处理完成")
         return 0
 
     parser.print_help()
