@@ -3,7 +3,9 @@
         {
             "name": "Win32",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**",
+                "D:/SoftWare/OpenGL/GLEnvironment/opencv-4.13.0/build/install/include",
+                "D:\\SoftWare\\OpenGL\\GLEnvironment\\Eigen3\\include"
             ],
             "defines": [
                 "_DEBUG",
