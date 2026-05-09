@@ -1,4 +1,5 @@
 // clang-format off
+#include <chrono>
 #include <iostream>
 #include <opencv2/opencv.hpp>
 #include "rasterizer.hpp"
@@ -111,6 +112,8 @@ int main(int argc, const char** argv)
 
     while(key != 27)
     {
+        const auto frame_start = std::chrono::steady_clock::now();
+
         r.clear(rst::Buffers::Color | rst::Buffers::Depth);
 
         r.set_model(get_model_matrix(angle));
@@ -125,7 +128,13 @@ int main(int argc, const char** argv)
         cv::imshow("image", image);
         key = cv::waitKey(10);
 
-        std::cout << "frame count: " << frame_count++ << '\n';
+        const auto frame_end = std::chrono::steady_clock::now();
+        const auto frame_duration = std::chrono::duration<double, std::milli>(frame_end - frame_start).count();
+        const double fps = frame_duration > 0.0 ? 1000.0 / frame_duration : 0.0;
+
+        std::cout << "frame count: " << frame_count++
+              << ", frame time: " << frame_duration << " ms"
+              << ", fps: " << fps << '\n';
     }
 
     return 0;

@@ -1,4 +1,4 @@
-# Install script for directory: D:/CodeSpace/Code/develop/games101/homework/Assignment2/code
+# Install script for directory: D:/dbSpace/develop/develop/games101/homework/Assignment2/code
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -40,7 +40,7 @@ endif()
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
 if(CMAKE_INSTALL_LOCAL_ONLY)
-  file(WRITE "D:/CodeSpace/Code/develop/games101/homework/Assignment2/code/build/install_local_manifest.txt"
+  file(WRITE "D:/dbSpace/develop/develop/games101/homework/Assignment2/code/build/install_local_manifest.txt"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
 endif()
 if(CMAKE_INSTALL_COMPONENT)
@@ -56,6 +56,6 @@ else()
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
-  file(WRITE "D:/CodeSpace/Code/develop/games101/homework/Assignment2/code/build/${CMAKE_INSTALL_MANIFEST}"
+  file(WRITE "D:/dbSpace/develop/develop/games101/homework/Assignment2/code/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
 endif()
