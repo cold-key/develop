@@ -269,6 +269,8 @@ void rst::rasterizer::rasterize_triangle(const Triangle& t, const std::array<Eig
     // float zp = alpha * v[0].z() / v[0].w() + beta * v[1].z() / v[1].w() + gamma * v[2].z() / v[2].w();
     // zp *= Z;
 
+    // 透视校正插值的通用公式：interpolated_value = Σ(αᵢ · valueᵢ / wᵢ) / Σ(αᵢ / wᵢ)
+
     // TODO: Interpolate the attributes:
     // auto interpolated_color
     // auto interpolated_normal
@@ -280,6 +282,60 @@ void rst::rasterizer::rasterize_triangle(const Triangle& t, const std::array<Eig
     // Use: Instead of passing the triangle's color directly to the frame buffer, pass the color to the shaders first to get the final color;
     // Use: auto pixel_color = fragment_shader(payload);
 
+    auto v = t.v;
+
+    int min_x = std::max(0, static_cast<int>(std::floor(std::min({v[0].x(), v[1].x(), v[2].x()}))));
+    int max_x = std::min(width - 1, static_cast<int>(std::ceil(std::max({v[0].x(), v[1].x(), v[2].x()}))));
+    int min_y = std::max(0, static_cast<int>(std::floor(std::min({v[0].y(), v[1].y(), v[2].y()}))));
+    int max_y = std::min(height - 1, static_cast<int>(std::ceil(std::max({v[0].y(), v[1].y(), v[2].y()}))));
+
+    for (int x = min_x; x <= max_x; ++x)
+    {
+        for (int y = min_y; y <= max_y; ++y)
+        {
+            float sample_x = x + 0.5f;
+            float sample_y = y + 0.5f;
+
+            if (!insideTriangle(sample_x, sample_y, t.v))
+            {
+                continue;
+            }
+
+            auto [alpha, beta, gamma] = computeBarycentric2D(sample_x, sample_y, t.v);
+            float w_reciprocal = 1.0f / (alpha / v[0].w() + beta / v[1].w() + gamma / v[2].w());
+            float z_interpolated = alpha * v[0].z() / v[0].w() + beta * v[1].z() / v[1].w() + gamma * v[2].z() / v[2].w();
+            z_interpolated *= w_reciprocal;
+
+            int ind = get_index(x, y);
+            if (z_interpolated >= depth_buf[ind])
+            {
+                continue;
+            }
+
+            auto interpolate_vec3 = [&](const Eigen::Vector3f& vert1, const Eigen::Vector3f& vert2, const Eigen::Vector3f& vert3)
+            {
+                return (alpha * vert1 / v[0].w() + beta * vert2 / v[1].w() + gamma * vert3 / v[2].w()) * w_reciprocal;
+            };
+
+            auto interpolate_vec2 = [&](const Eigen::Vector2f& vert1, const Eigen::Vector2f& vert2, const Eigen::Vector2f& vert3)
+            {
+                return (alpha * vert1 / v[0].w() + beta * vert2 / v[1].w() + gamma * vert3 / v[2].w()) * w_reciprocal;
+            };
+
+            auto interpolated_color = interpolate_vec3(t.color[0], t.color[1], t.color[2]);
+            auto interpolated_normal = interpolate_vec3(t.normal[0], t.normal[1], t.normal[2]);
+            auto interpolated_texcoords = interpolate_vec2(t.tex_coords[0], t.tex_coords[1], t.tex_coords[2]);
+            auto interpolated_shadingcoords = interpolate_vec3(view_pos[0], view_pos[1], view_pos[2]);
+
+            fragment_shader_payload payload(interpolated_color, interpolated_normal.normalized(),
+                                            interpolated_texcoords, texture ? &*texture : nullptr);
+            payload.view_pos = interpolated_shadingcoords;
+
+            depth_buf[ind] = z_interpolated;
+            auto pixel_color = fragment_shader(payload);
+            set_pixel(Eigen::Vector2i(x, y), pixel_color);
+        }
+    }
  
 }
 
