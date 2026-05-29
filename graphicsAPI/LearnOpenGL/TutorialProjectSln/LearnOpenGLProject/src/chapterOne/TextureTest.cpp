@@ -81,7 +81,7 @@ int TextureTest::run() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-	Shader ourShader("src/shaderSrc/texture_test_shader.vs", "src/shaderSrc/texture_test_shader.fs");
+	Shader ourShader("src/shaderSrc/chapterOne/texture_test.vs", "src/shaderSrc/chapterOne/texture_test.fs");
 
 	double scale = 0.0;
 	double modNum = 3;

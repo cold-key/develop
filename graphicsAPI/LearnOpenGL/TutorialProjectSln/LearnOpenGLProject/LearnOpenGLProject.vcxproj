@@ -142,6 +142,7 @@
     <ClCompile Include="src\chapterOne\TransformationsTest.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\base\Camera.h" />
     <ClInclude Include="src\chapterOne\CameraTest.h" />
     <ClInclude Include="src\chapterOne\CoordinatesTest.h" />
     <ClInclude Include="src\base\BaseComponent.h" />
@@ -152,14 +153,14 @@
     <ClInclude Include="src\chapterOne\TransformationsTest.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="src\shaderSrc\coordinates_test_shader.fs" />
-    <None Include="src\shaderSrc\coordinates_test_shader.vs" />
-    <None Include="src\shaderSrc\shaderTest.fs" />
-    <None Include="src\shaderSrc\shaderTest.vs" />
-    <None Include="src\shaderSrc\texture_test_shader.vs" />
-    <None Include="src\shaderSrc\texture_test_shader.fs" />
-    <None Include="src\shaderSrc\transformations_test_shader.fs" />
-    <None Include="src\shaderSrc\transformations_test_shader.vs" />
+    <None Include="src\shaderSrc\chapterOne\coordinates_test.fs" />
+    <None Include="src\shaderSrc\chapterOne\coordinates_test.vs" />
+    <None Include="src\shaderSrc\chapterOne\shader_test.fs" />
+    <None Include="src\shaderSrc\chapterOne\shader_test.vs" />
+    <None Include="src\shaderSrc\chapterOne\texture_test.vs" />
+    <None Include="src\shaderSrc\chapterOne\texture_test.fs" />
+    <None Include="src\shaderSrc\chapterOne\transformations_test.fs" />
+    <None Include="src\shaderSrc\chapterOne\transformations_test.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -28,6 +28,9 @@
     <Filter Include="资源文件\Shader">
       <UniqueIdentifier>{90c3a071-6484-43fd-8a63-4f3e874e4253}</UniqueIdentifier>
     </Filter>
+    <Filter Include="资源文件\Shader\ChapterOne">
+      <UniqueIdentifier>{c1cf9d54-0615-4390-8f98-10fd1c8b6f43}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -86,15 +89,34 @@
     <ClInclude Include="src\chapterOne\CameraTest.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="src\base\Camera.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="src\shaderSrc\shaderTest.fs" />
-    <None Include="src\shaderSrc\shaderTest.vs" />
-    <None Include="src\shaderSrc\texture_test_shader.fs" />
-    <None Include="src\shaderSrc\texture_test_shader.vs" />
-    <None Include="src\shaderSrc\transformations_test_shader.vs" />
-    <None Include="src\shaderSrc\transformations_test_shader.fs" />
-    <None Include="src\shaderSrc\coordinates_test_shader.vs" />
-    <None Include="src\shaderSrc\coordinates_test_shader.fs" />
+    <None Include="src\shaderSrc\chapterOne\shader_test.fs">
+      <Filter>资源文件\Shader\ChapterOne</Filter>
+    </None>
+    <None Include="src\shaderSrc\chapterOne\shader_test.vs">
+      <Filter>资源文件\Shader\ChapterOne</Filter>
+    </None>
+    <None Include="src\shaderSrc\chapterOne\texture_test.fs">
+      <Filter>资源文件\Shader\ChapterOne</Filter>
+    </None>
+    <None Include="src\shaderSrc\chapterOne\texture_test.vs">
+      <Filter>资源文件\Shader\ChapterOne</Filter>
+    </None>
+    <None Include="src\shaderSrc\chapterOne\transformations_test.vs">
+      <Filter>资源文件\Shader\ChapterOne</Filter>
+    </None>
+    <None Include="src\shaderSrc\chapterOne\transformations_test.fs">
+      <Filter>资源文件\Shader\ChapterOne</Filter>
+    </None>
+    <None Include="src\shaderSrc\chapterOne\coordinates_test.vs">
+      <Filter>资源文件\Shader\ChapterOne</Filter>
+    </None>
+    <None Include="src\shaderSrc\chapterOne\coordinates_test.fs">
+      <Filter>资源文件\Shader\ChapterOne</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -109,7 +109,7 @@ int CoordinatesTest::run() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-	Shader ourShader("src/shaderSrc/coordinates_test_shader.vs", "src/shaderSrc/coordinates_test_shader.fs");
+	Shader ourShader("src/shaderSrc/chapterOne/coordinates_test.vs", "src/shaderSrc/chapterOne/coordinates_test.fs");
 	ourShader.use();
 	glUniform1i(glGetUniformLocation(ourShader.ID, "texture1"), 0); // 手动设置
 	ourShader.setInt("texture2", 1); // 或者使用着色器类设置

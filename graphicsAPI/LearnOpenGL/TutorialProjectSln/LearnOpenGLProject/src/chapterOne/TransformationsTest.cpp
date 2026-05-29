@@ -79,7 +79,7 @@ int TransformationsTest::run() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-	Shader ourShader("src/shaderSrc/transformations_test_shader.vs", "src/shaderSrc/transformations_test_shader.fs");
+	Shader ourShader("src/shaderSrc/chapterOne/transformations_test.vs", "src/shaderSrc/chapterOne/transformations_test.fs");
 
 	while (!glfwWindowShouldClose(window))
 	{

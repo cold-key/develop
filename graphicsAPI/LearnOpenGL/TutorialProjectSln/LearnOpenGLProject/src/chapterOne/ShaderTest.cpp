@@ -93,7 +93,7 @@ int ShaderTest::run() {
 	//glDeleteShader(vertexShader);
 	//glDeleteShader(fragmentShader);
 
-	Shader ourShader("src/shaderSrc/shaderTest.vs","src/shaderSrc/shaderTest.fs");
+	Shader ourShader("src/shaderSrc/chapterOne/shader_test.vs","src/shaderSrc/chapterOne/shader_test.fs");
 
 	while (!glfwWindowShouldClose(window))
 	{
