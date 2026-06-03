@@ -140,6 +140,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="src\chapterOne\TextureTest.cpp" />
     <ClCompile Include="src\chapterOne\TransformationsTest.cpp" />
+    <ClCompile Include="src\chapterTwo\ColorTest.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\base\Camera.h" />
@@ -151,6 +152,7 @@
     <ClInclude Include="src\chapterOne\ShaderTest.h" />
     <ClInclude Include="src\chapterOne\TextureTest.h" />
     <ClInclude Include="src\chapterOne\TransformationsTest.h" />
+    <ClInclude Include="src\chapterTwo\ColorTest.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\shaderSrc\chapterOne\coordinates_test.fs" />
@@ -161,6 +163,8 @@
     <None Include="src\shaderSrc\chapterOne\texture_test.fs" />
     <None Include="src\shaderSrc\chapterOne\transformations_test.fs" />
     <None Include="src\shaderSrc\chapterOne\transformations_test.vs" />
+    <None Include="src\shaderSrc\chapterTwo\color_test.fs" />
+    <None Include="src\shaderSrc\chapterTwo\color_test.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -63,6 +63,9 @@
     <ClCompile Include="src\chapterOne\CameraTest.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="src\chapterTwo\ColorTest.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\base\BaseComponent.h">
@@ -92,6 +95,9 @@
     <ClInclude Include="src\base\Camera.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="src\chapterTwo\ColorTest.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\shaderSrc\chapterOne\shader_test.fs">
@@ -118,5 +124,7 @@
     <None Include="src\shaderSrc\chapterOne\coordinates_test.fs">
       <Filter>资源文件\Shader\ChapterOne</Filter>
     </None>
+    <None Include="src\shaderSrc\chapterTwo\color_test.fs" />
+    <None Include="src\shaderSrc\chapterTwo\color_test.vs" />
   </ItemGroup>
 </Project>
