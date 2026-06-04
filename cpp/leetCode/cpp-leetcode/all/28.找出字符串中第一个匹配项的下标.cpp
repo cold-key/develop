@@ -33,6 +33,7 @@ public:
 };
 // @lc code=end
 
+// TODO 补充KMP解法
 int main() {
     Solution solution;
     string haystack = "aaa";
