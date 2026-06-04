@@ -8,6 +8,7 @@
 #include "chapterOne/CoordinatesTest.h"
 #include "chapterOne/CameraTest.h"
 #include "chapterTwo/ColorTest.h"
+#include "chapterTwo/LightMapsTest.h"
 
 int main() {
 	//HelloTriangle triangleTest;
@@ -22,6 +23,8 @@ int main() {
 	//coordinatesTest.run();
 	//CameraTest cameraTest;
 	//cameraTest.run();
-	ColorTest colorTest;
-	colorTest.run();
+	//ColorTest colorTest;
+	//colorTest.run();
+	LightMapsTest lightMapsTest;
+	lightMapsTest.run();
 }

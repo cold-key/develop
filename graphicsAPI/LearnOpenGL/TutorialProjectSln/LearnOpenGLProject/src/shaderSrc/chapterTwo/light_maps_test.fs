@@ -5,7 +5,8 @@ in vec2 TexCoord;
 in vec3 FragPos;
 in vec3 Normal;
 
-uniform sampler2D texture1;
+uniform sampler2D material_diffuse;
+uniform sampler2D material_specular;
 uniform bool useTexture;
 uniform vec4 objectColor;
 
@@ -16,12 +17,13 @@ uniform bool isLightSource;
 
 void main()
 {
-    vec4 baseColor = useTexture ? texture(texture1, TexCoord) : objectColor;
-
     if (isLightSource) {
-        FragColor = baseColor;
+        FragColor = useTexture ? texture(material_diffuse, TexCoord) : objectColor;
         return;
     }
+
+    vec4 diffuseColor = texture(material_diffuse, TexCoord);
+    float specularMask = texture(material_specular, TexCoord).r;
 
     // distance attenuation
     float dist = length(lightPos - FragPos);
@@ -37,16 +39,13 @@ void main()
     float diff = max(dot(norm, lightDir), 0.0);
     vec3 diffuse = diff * lightColor * attenuation;
 
-    // specular (Blinn-Phong with normalization)
-    float specularStrength = 0.9;
+    // specular (Blinn-Phong)
     float shininess = 128.0;
-    float normalization = (shininess + 2.0) / (2.0 * 3.14159265);
-    normalization = 1.0f;
     vec3 viewDir = normalize(viewPos - FragPos);
     vec3 halfwayDir = normalize(lightDir + viewDir);
-    float spec = normalization * pow(max(dot(norm, halfwayDir), 0.0), shininess);
-    vec3 specular = specularStrength * spec * lightColor * attenuation;
+    float spec = pow(max(dot(norm, halfwayDir), 0.0), shininess);
+    vec3 specular = specularMask * spec * lightColor * attenuation;
 
-    vec3 result = (ambient + diffuse + specular) * baseColor.rgb;
-    FragColor = vec4(result, baseColor.a);
+    vec3 result = (ambient + diffuse) * diffuseColor.rgb + specular;
+    FragColor = vec4(result, diffuseColor.a);
 }

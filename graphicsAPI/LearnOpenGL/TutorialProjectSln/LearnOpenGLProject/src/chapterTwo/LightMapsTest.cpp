@@ -1,36 +1,48 @@
-﻿#include "ColorTest.h"
+#include "LightMapsTest.h"
 #include "base/BaseComponent.h"
 #include "base/Shader.h"
 #include "base/Camera.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include<iostream>
+#include <iostream>
 
 #include "base/stb_image.h"
 
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
-int ColorTest::run() {
-	GLFWwindow* window = BaseComponent::initWidget();
-
-	//OpenGL要求y轴0.0坐标是在图片的底部的，但是图片的y轴0.0坐标通常在顶部。
+static unsigned int loadTexture(const char* path) {
 	stbi_set_flip_vertically_on_load(true);
-
 	int width, height, nrChannels;
-	// 关键点：stbi_load 的路径是相对于程序工作目录，不是相对于 .cpp 文件。VS 默认工作目录是 .vcxproj 所在的项目根目录。
-	unsigned char* data = stbi_load("res/img/container.jpg", &width, &height, &nrChannels, 0);
+	unsigned char* data = stbi_load(path, &width, &height, &nrChannels, 0);
+	if (!data) {
+		std::cout << "Failed to load texture: " << path << std::endl;
+		return 0;
+	}
+
 	unsigned int texture;
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+
+	GLenum format = (nrChannels == 4) ? GL_RGBA : GL_RGB;
+	glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	stbi_image_free(data);
+	return texture;
+}
+
+int LightMapsTest::run() {
+	GLFWwindow* window = BaseComponent::initWidget();
+
+	stbi_set_flip_vertically_on_load(true);
+
+	unsigned int diffuseMap = loadTexture("res/img/container2.png");
+	unsigned int specularMap = loadTexture("res/img/container2_specular.png");
 
 	float vertices[] = {
 		// 背面 (z=-0.5), normal (0,0,-1)
@@ -98,24 +110,27 @@ int ColorTest::run() {
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 	glEnableVertexAttribArray(2);
 
-	Shader ourShader("src/shaderSrc/chapterTwo/color_test.vs", "src/shaderSrc/chapterTwo/color_test.fs");
+	Shader ourShader("src/shaderSrc/chapterTwo/light_maps_test.vs", "src/shaderSrc/chapterTwo/light_maps_test.fs");
 	ourShader.use();
-	glUniform1i(glGetUniformLocation(ourShader.ID, "texture1"), 0);
+	ourShader.setInt("material_diffuse", 0);
+	ourShader.setInt("material_specular", 1);
 
 	glEnable(GL_DEPTH_TEST);
 
-	Camera camera(glm::vec3(0.0f, 0.0f, 5.0f));
+	Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
 	while (!glfwWindowShouldClose(window))
 	{
 		BaseComponent::processInput(window, camera);
 
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		ourShader.use();
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture);
+		glBindTexture(GL_TEXTURE_2D, diffuseMap);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, specularMap);
 
 		glm::mat4 view = camera.GetViewMatrix();
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
@@ -127,7 +142,7 @@ int ColorTest::run() {
 
 		glBindVertexArray(VAO);
 
-		glm::vec3 lightPos(0.0f, 1.0f, 1.0f);
+		glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 		glm::vec3 lightColor(1.0f, 1.0f, 1.0f);
 		ourShader.setVec3("lightPos", lightPos);
 		ourShader.setVec3("lightColor", lightColor);
@@ -135,30 +150,21 @@ int ColorTest::run() {
 
 		unsigned int modelLoc = glGetUniformLocation(ourShader.ID, "model");
 
-		// 立方体1：带纹理，位于左侧
+		// 立方体：居中，带漫反射+镜面反射贴图
 		ourShader.setBool("isLightSource", false);
-		glm::mat4 model1 = glm::mat4(1.0f);
-		model1 = glm::translate(model1, glm::vec3(-1.5f, 0.0f, 0.0f));
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model1));
 		ourShader.setBool("useTexture", true);
+		glm::mat4 model = glm::mat4(1.0f);
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
-		// 立方体2：纯色无纹理，位于右侧
-		glm::mat4 model2 = glm::mat4(1.0f);
-		model2 = glm::translate(model2, glm::vec3(1.5f, 0.0f, 0.0f));
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model2));
-		ourShader.setBool("useTexture", false);
-		ourShader.setVec4("objectColor", 1.0f, 0.5f, 0.2f, 1.0f);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-
-		// 立方体3：光源指示器，位于lightPos
+		// 光源指示器
 		ourShader.setBool("isLightSource", true);
-		glm::mat4 model3 = glm::mat4(1.0f);
-		model3 = glm::translate(model3, lightPos);
-		model3 = glm::scale(model3, glm::vec3(0.2f));
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model3));
 		ourShader.setBool("useTexture", false);
 		ourShader.setVec4("objectColor", lightColor.x, lightColor.y, lightColor.z, 1.0f);
+		glm::mat4 lightModel = glm::mat4(1.0f);
+		lightModel = glm::translate(lightModel, lightPos);
+		lightModel = glm::scale(lightModel, glm::vec3(0.2f));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lightModel));
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		glfwSwapBuffers(window);
