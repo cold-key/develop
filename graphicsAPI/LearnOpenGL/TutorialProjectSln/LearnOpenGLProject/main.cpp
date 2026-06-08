@@ -9,6 +9,7 @@
 #include "chapterOne/CameraTest.h"
 #include "chapterTwo/ColorTest.h"
 #include "chapterTwo/LightMapsTest.h"
+#include "chapterTwo/LightCastersTest.h"
 
 int main() {
 	//HelloTriangle triangleTest;
@@ -25,6 +26,8 @@ int main() {
 	//cameraTest.run();
 	//ColorTest colorTest;
 	//colorTest.run();
-	LightMapsTest lightMapsTest;
-	lightMapsTest.run();
+	//LightMapsTest lightMapsTest;
+	//lightMapsTest.run();
+	LightCastersTest lightCastersTest;
+	lightCastersTest.run();
 }

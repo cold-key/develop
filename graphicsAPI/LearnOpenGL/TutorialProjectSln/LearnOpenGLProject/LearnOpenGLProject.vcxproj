@@ -142,6 +142,7 @@
     <ClCompile Include="src\chapterOne\TransformationsTest.cpp" />
     <ClCompile Include="src\chapterTwo\ColorTest.cpp" />
     <ClCompile Include="src\chapterTwo\LightMapsTest.cpp" />
+    <ClCompile Include="src\chapterTwo\LightCastersTest.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\base\Camera.h" />
@@ -155,6 +156,7 @@
     <ClInclude Include="src\chapterOne\TransformationsTest.h" />
     <ClInclude Include="src\chapterTwo\ColorTest.h" />
     <ClInclude Include="src\chapterTwo\LightMapsTest.h" />
+    <ClInclude Include="src\chapterTwo\LightCastersTest.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\shaderSrc\chapterOne\coordinates_test.fs" />
@@ -169,6 +171,8 @@
     <None Include="src\shaderSrc\chapterTwo\color_test.vs" />
     <None Include="src\shaderSrc\chapterTwo\light_maps_test.fs" />
     <None Include="src\shaderSrc\chapterTwo\light_maps_test.vs" />
+    <None Include="src\shaderSrc\chapterTwo\light_casters_test.fs" />
+    <None Include="src\shaderSrc\chapterTwo\light_casters_test.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
