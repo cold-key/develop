@@ -18,6 +18,7 @@ public:
     }
 
     // 贪心法
+    // 重仓猛干、浮盈加仓、频繁交易、技术分析、基本美好、早晚得势 QAQ
     int greedyMaxProfit(vector<int>& prices) {
         int ans = 0;
         for(int i = 1; i < prices.size(); ++i){

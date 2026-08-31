@@ -20,34 +20,38 @@ public:
             return;
         }
         int swapCount = 0;
-        int startIndex = 0;
-        int index = (startIndex + k) % len;
-        int cacheValue = nums[startIndex];
+        int curIndex = 0;
+        int startIndex = curIndex;
+        int cacheValue = nums[curIndex];
         while(swapCount < len){
-            int temp = nums[index];
-            nums[index] = cacheValue;
+            int nextIndex = (curIndex + k) % len;
+            int temp = nums[nextIndex];
+            nums[nextIndex] = cacheValue;
             cacheValue = temp;
-            index = (index + k) % len;
+            curIndex = nextIndex;
             ++swapCount;
 
-            if(index == (startIndex + k) % len){
-                ++startIndex;
-                index = (startIndex + k) % len;;
-                cacheValue = nums[startIndex];
+            // std::cout << "temp:" << temp << std::endl;
+
+            if(curIndex == startIndex){
+                curIndex = ++curIndex % len;
+                cacheValue = nums[curIndex];
+                startIndex = curIndex;
             }
 
-            // printVector(nums);
+            // std::cout << curIndex << "," << cacheValue << "," << swapCount << std::endl;
         }
     }
 };
 // @lc code=end
 
-// int main(){
-//     Solution solution;
-//     std::vector<int> nums = {1,2,3,4,5,6,7};
-//     int k = 2;
-//     solution.rotate(nums,k);
-//     for(auto num : nums){
-//         std::cout << num << " ";
-//     }
-// }
+int main(){
+    Solution solution;
+    std::vector<int> nums = {-1,-100,3,99};
+    std::vector<int> nums2 = {1,2,3,4,5,6,7};
+    int k = 3;
+    solution.rotate(nums,k);
+    for(auto num : nums){
+        std::cout << num << " ";
+    }
+}
