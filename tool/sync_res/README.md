@@ -20,6 +20,14 @@ python svn_sync.py log --start 2026-03-01 --end 2026-03-23 --output logs\changes
 
 如果你仍想指定不同输出文件名/目录，也可以继续使用 `--output`。
 
+如果只需要导出某个提交者的变更，可以增加 `--author`。提交者名称会去除首尾空格后按大小写敏感的完全匹配处理：
+
+```powershell
+python svn_sync.py log --start 2026-03-01 --end 2026-03-23 --author username --output logs\changes_2026_03_user.json
+```
+
+筛选条件会记录在输出 JSON 的 `query_range.author` 中；未传 `--author` 时该字段为 `null`。没有匹配提交时仍会生成统计为 0 的空结果。
+
 输出 JSON 结构为“按文件组织”的聚合结果：
 - `summary`
 - `added` / `modified` / `deleted`

@@ -27,8 +27,8 @@ from collections import OrderedDict
 import xml.etree.ElementTree as ET
 
 
-DEFAULT_SOURCE_PATH = r"D:\a2\assets\branches\dragon_ball_trunk\cocos_studio"
-DEFAULT_SYNC_TARGET_PATH = r"D:\a2\assets\branches\dragon_ball_abroad_trunk\cocos_studio"
+DEFAULT_SOURCE_PATH = r"D:\a2\assets\branches\dragon_ball_hero\cocos_studio"
+DEFAULT_SYNC_TARGET_PATH = r"D:\a2\assets\branches\dragon_ball_trunk\cocos_studio"
 
 # Python2/3：统一判断“文本字符串”类型
 unicode_type = type(u"")
@@ -167,9 +167,15 @@ class SvnSyncTool(object):
     def __init__(self, source_path):
         self.source_path = source_path
 
-    def export_log(self, start_date, end_date, output_json):
+    def export_log(self, start_date, end_date, output_json, author=None):
         _parse_ymd(start_date)
         _parse_ymd(end_date)
+
+        author_filter = None
+        if author is not None:
+            author_filter = author.strip()
+            if not author_filter:
+                raise ValueError("提交者筛选条件不能为空")
 
         # svn 的 {YYYY-MM-DD} 解析为当天午夜 00:00:00，
         # 所以 {end_date} 不包含结束日期当天的提交。
@@ -204,6 +210,9 @@ class SvnSyncTool(object):
                 revision = -1
 
             author = (entry.findtext("author") or "").strip()
+            if author_filter is not None and author != author_filter:
+                continue
+
             date_raw = entry.findtext("date") or ""
             date = _format_utc_datetime(date_raw)
             msg = entry.findtext("msg") or ""
@@ -318,6 +327,7 @@ class SvnSyncTool(object):
             "start_date": start_date,
             "end_date": end_date,
             "source_path": self.source_path,
+            "author": author_filter,
         }
         payload["summary"] = {
             "total_files": len(file_histories),
@@ -528,6 +538,11 @@ def main(argv=None):
         default=DEFAULT_SOURCE_PATH,
         help="源工程路径（SVN working copy 或本地可访问路径）。默认: {0}".format(DEFAULT_SOURCE_PATH),
     )
+    p_log.add_argument(
+        "--author",
+        default=None,
+        help="按提交者精确筛选（区分大小写，可选）",
+    )
     p_log.add_argument("--output", required=True, help="输出 JSON 文件路径")
 
     p_sync = sub.add_parser("sync", help="读取 JSON 并同步到目标目录")
@@ -553,8 +568,16 @@ def main(argv=None):
         return 1
 
     if args.cmd == "log":
+        if args.author is not None and not args.author.strip():
+            parser.error("--author 不能为空")
+
         tool = SvnSyncTool(args.source)
-        tool.export_log(start_date=args.start, end_date=args.end, output_json=args.output)
+        tool.export_log(
+            start_date=args.start,
+            end_date=args.end,
+            output_json=args.output,
+            author=args.author,
+        )
         _print_line("导出完成: {0}".format(args.output))
         return 0
 

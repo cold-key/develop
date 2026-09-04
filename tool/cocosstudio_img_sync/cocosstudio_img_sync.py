@@ -35,8 +35,8 @@ from datetime import datetime
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
-SOURCE_ROOT = r"D:\a2\assets\branches\dragon_ball_hero\cocos_studio\cocosstudio"
-TARGET_ROOT = r"D:\a2\client\dragon_ball_hero\res"
+SOURCE_ROOT = r"D:\a2\assets\branches\dragon_ball_trunk\cocos_studio\cocosstudio"
+TARGET_ROOT = r"D:\a2\client\dragon_ball_trunk\res"
 
 # Add future CocosStudio resource directories here.  The target uses the same
 # relative directory names below TARGET_ROOT.
