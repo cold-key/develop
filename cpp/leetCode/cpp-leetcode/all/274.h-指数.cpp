@@ -18,6 +18,7 @@ public:
         return hIndexBisectionMethod(citations);
     }
 
+    // 排序之后就可以算答案了
     int hIndexSortMethod(vector<int>& citations) {
         ranges::sort(citations);
         for(int i = 0; i < citations.size(); ++i){
@@ -28,6 +29,7 @@ public:
         return 0;
     }
 
+    // 二分法，对于一组citations，答案肯定是 0 ~ citations.size() 这样就可以二分猜答案了
     int hIndexBisectionMethod(vector<int>& citations) {
         int left = 0;
         int right = citations.size();
