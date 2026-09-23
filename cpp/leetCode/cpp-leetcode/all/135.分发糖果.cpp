@@ -48,7 +48,7 @@ public:
         return total;
     }
 
-    // 时间复杂度 n ，空间复杂度 1 的做法
+    // 时间复杂度 n ，空间复杂度 n 的做法
     int candy_n_n(vector<int>& ratings){
         std::vector<int> candyNum(ratings.size(),1);
         for(int i = 1; i < ratings.size(); ++i){
@@ -68,6 +68,7 @@ public:
         return result;
     }
 
+    // 时间复杂度 n ，空间复杂度 1 的做法
     int candy_n_1(vector<int>& ratings){
         int ans = ratings.size();
         int up = 0;
