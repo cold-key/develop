@@ -85,6 +85,28 @@ int main(){
     // std::cout << param_7 << std::endl;
     std::cout << param_8 << std::endl;
 
+    // random test
+    std::cout << "------- random test -------" << std::endl;
+
+    std::cout << "------- random seed -------" << std::endl;
+    int randomSeed = std::random_device{}();
+    std::cout << "seed is " << randomSeed << std::endl;
+    std::mt19937 randomSeedGen {randomSeed};
+    for(int i = 0; i < 10; ++i){
+        std::cout << randomSeedGen() << "," ;
+    }
+    std::cout << std::endl;
+
+    std::cout << "------- const seed -------" << std::endl;
+    int constSeed = 123456789;
+    std::cout << "seed is " << constSeed << std::endl;
+    std::mt19937 constSeedGen {constSeed};
+    for(int i = 0; i < 10; ++i){
+        std::cout << constSeedGen() << "," ;
+    }
+    std::cout << std::endl;
+
+
 
     return 0;
 }
