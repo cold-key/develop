@@ -27,19 +27,18 @@ from collections import OrderedDict
 import xml.etree.ElementTree as ET
 
 
-DEFAULT_SOURCE_PATH = r"D:\a2\assets\branches\dragon_ball_hero\cocos_studio"
-DEFAULT_SYNC_TARGET_PATH = r"D:\a2\assets\branches\dragon_ball_trunk\cocos_studio"
+DEFAULT_SOURCE_PATH = r"D:\a2\assets\branches\dragon_ball_trunk\cocos_studio"
+DEFAULT_SYNC_TARGET_PATH = r"D:\a2\assets\branches\dragon_ball_abroad_trunk\cocos_studio"
 
 # Python2/3：统一判断“文本字符串”类型
 unicode_type = type(u"")
 
 # Python2 在某些环境下 sys.stdout/sys.stderr 编码可能是 ascii，
 # 导致 argparse 输出中文 help 时抛 UnicodeEncodeError。
-try:
+# Python3 标准流已经是文本流，不能再套写入 bytes 的编码包装器。
+if sys.version_info[0] < 3:
     sys.stdout = codecs.getwriter("utf-8")(sys.stdout)
     sys.stderr = codecs.getwriter("utf-8")(sys.stderr)
-except Exception:
-    pass
 
 
 def _print_line(message, stream=None):
@@ -53,12 +52,12 @@ def _print_line(message, stream=None):
 
     try:
         stream.write(message)
-        stream.write(u"\n")
-    except Exception:
+    except UnicodeEncodeError:
         encoding = getattr(stream, "encoding", None) or "utf-8"
-        data = message.encode(encoding, "replace")
-        stream.write(data)
-        stream.write("\n")
+        # 替换当前编码无法表示的字符，仍然向文本流写入文本。
+        safe_message = message.encode(encoding, "replace").decode(encoding)
+        stream.write(safe_message)
+    stream.write(u"\n")
 
     try:
         stream.flush()

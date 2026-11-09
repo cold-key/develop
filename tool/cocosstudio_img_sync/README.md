@@ -4,8 +4,8 @@
 
 默认配置：
 
-- 源目录：`D:\a2\assets\branches\dragon_ball_hero\cocos_studio\cocosstudio`
-- 目标目录：`D:\a2\client\dragon_ball_hero\res`
+- 源目录：`D:\a2\assets\branches\dragon_ball_trunk\cocos_studio\cocosstudio`
+- 目标目录：`D:\a2\client\dragon_ball_trunk\res`
 - 同步目录：`bg`、`sprite`
 
 目标目录使用与源目录相同的相对路径。例如：
