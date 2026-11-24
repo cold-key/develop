@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>千早爱音 — 拉格朗日插值与 f(x) = g(y) 交互式函数描图</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #1e293b;
+      --border: #334155;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --accent: #f43f5e;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; font-family: "Microsoft YaHei UI", system-ui, sans-serif;
+      background: var(--bg); color: var(--text);
+      display: grid; grid-template-columns: 1fr 370px; height: 100vh; overflow: hidden;
+    }
+    .stage {
+      position: relative; display: flex; align-items: center; justify-content: center;
+      background: #ffffff; overflow: hidden;
+    }
+    canvas { display: block; cursor: crosshair; }
+    .hud {
+      position: absolute; top: 12px; left: 12px;
+      background: rgba(15, 23, 42, 0.86); color: #f8fafc;
+      padding: 8px 12px; border-radius: 8px; font-size: 13px;
+      pointer-events: none; backdrop-filter: blur(6px);
+    }
+    .sidebar {
+      background: var(--panel); border-left: 1px solid var(--border);
+      padding: 18px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px;
+    }
+    h1 { font-size: 17px; margin: 0; color: #fff; }
+    .sub { font-size: 12px; color: var(--muted); line-height: 1.5; }
+    .card {
+      background: rgba(15, 23, 42, 0.65); border: 1px solid var(--border);
+      border-radius: 10px; padding: 12px;
+    }
+    .card h2 { font-size: 13px; margin: 0 0 8px 0; color: #cbd5e1; }
+    label { display: flex; align-items: center; justify-content: space-between; font-size: 13px; margin: 6px 0; }
+    input[type="range"] { width: 150px; }
+    .legend { display: flex; flex-direction: column; gap: 5px; font-size: 12px; }
+    .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; }
+    pre {
+      margin: 0; white-space: pre-wrap; word-break: break-all;
+      font-family: Consolas, monospace; font-size: 11.5px; line-height: 1.45;
+      color: #e2e8f0; background: #0b1120; padding: 10px; border-radius: 6px;
+      max-height: 310px; overflow-y: auto;
+    }
+    .btn {
+      background: #3b82f6; color: white; border: none; border-radius: 6px;
+      padding: 7px 12px; font-size: 12px; cursor: pointer;
+    }
+    .btn:hover { background: #2563eb; }
+  </style>
+</head>
+<body>
+  <div class="stage" id="stage">
+    <canvas id="canvas"></canvas>
+    <div class="hud" id="hud">滚轮缩放 / 拖拽平移 / 悬停查看单段 f(x)=g(y) 公式</div>
+  </div>
+  <aside class="sidebar">
+    <div>
+      <h1>千早爱音 f(x) = g(y) 函数描图</h1>
+      <div class="sub">
+        共 <b>5,308</b> 段分段方程（Chebyshev-Lobatto 节点拉格朗日插值 + 分离椭圆），全部由纯数学公式实时求值绘制。
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>显示控制</h2>
+      <label>原图底图透明度 <input type="range" id="bgAlpha" min="0" max="1" step="0.05" value="0.22"></label>
+      <label>按方程类型着色 <input type="checkbox" id="colorMode" checked></label>
+      <label>显示坐标轴与网格 <input type="checkbox" id="showGrid" checked></label>
+      <label>显示切比雪夫节点 (选中段) <input type="checkbox" id="showNodes" checked></label>
+      <div style="margin-top:8px; display:flex; gap:8px;">
+        <button class="btn" id="resetView">重置视角</button>
+        <button class="btn" id="pureToggle">纯白函数视图</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>方程类型图例</h2>
+      <div class="legend">
+        <div><span class="dot" style="background:#d92662"></span><b>f(x) = L(x), g(y) = y</b>（2,706 段，拉格朗日插值）</div>
+        <div><span class="dot" style="background:#1d5fd6"></span><b>f(x) = x, g(y) = L(y)</b>（2,598 段，拉格朗日插值）</div>
+        <div><span class="dot" style="background:#108a52"></span><b>((x-x₀)/a)² = 1 - ((y-y₀)/b)²</b>（4 段，分离椭圆）</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>当前选中 / 悬停函数段</h2>
+      <pre id="formulaBox">将鼠标移动到任意轮廓曲线上，即可查看该段对应的拉格朗日插值节点、多项式系数与 f(x) = g(y) 方程。</pre>
+    </div>
+  </aside>
+
+  <script src="segments_data.js"></script>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const stage = document.getElementById('stage');
+    const hud = document.getElementById('hud');
+    const formulaBox = document.getElementById('formulaBox');
+
+    const bgImg = new Image();
+    bgImg.src = '../千早爱音.jpg';
+    bgImg.onload = () => draw();
+
+    // Precompute barycentric weights and sampled points per segment for fast hit-testing & rendering
+    function baryWeights(xs) {
+      const n = xs.length;
+      const w = new Array(n).fill(1);
+      for (let i = 0; i < n; i++) {
+        let p = 1;
+        for (let j = 0; j < n; j++) if (i !== j) p *= (xs[i] - xs[j]);
+        w[i] = 1 / p;
+      }
+      return w;
+    }
+    function evalBary(xs, ys, w, x) {
+      let num = 0, den = 0;
+      for (let i = 0; i < xs.length; i++) {
+        const d = x - xs[i];
+        if (Math.abs(d) < 1e-11) return ys[i];
+        const wi = w[i] / d;
+        num += ys[i] * wi;
+        den += wi;
+      }
+      return num / den;
+    }
+
+    for (const s of SEGMENTS_DATA) {
+      s.pts = [];
+      if (s.type === 'ELLIPSE') {
+        for (let k = 0; k <= 64; k++) {
+          const th = 2 * Math.PI * k / 64;
+          s.pts.push([s.ecx + s.ea * Math.cos(th), s.ecy + s.eb * Math.sin(th)]);
+        }
+      } else {
+        s.w = baryWeights(s.nodesT);
+        const t0 = s.nodesT[0], t1 = s.nodesT[s.nodesT.length - 1];
+        const steps = Math.max(10, Math.ceil(Math.abs(t1 - t0) * 140));
+        for (let k = 0; k <= steps; k++) {
+          const t = t0 + (t1 - t0) * (k / steps);
+          const v = evalBary(s.nodesT, s.nodesV, s.w, t);
+          s.pts.push(s.type === 'Y_OF_X' ? [t, v] : [v, t]);
+        }
+      }
+    }
+
+    let zoom = 1, panX = 0, panY = 0, hovered = null, dragging = false, dragMoved = false, lastX = 0, lastY = 0;
+
+    function resize() {
+      canvas.width = stage.clientWidth;
+      canvas.height = stage.clientHeight;
+      draw();
+    }
+    window.addEventListener('resize', resize);
+
+    function getTransform() {
+      const baseScale = Math.min(canvas.width / 8.6, canvas.height / 6.5) * zoom;
+      const ox = canvas.width / 2 + panX;
+      const oy = canvas.height / 2 + panY;
+      return { baseScale, ox, oy };
+    }
+    function mathToScreen(x, y, tf) {
+      return [tf.ox + x * tf.baseScale, tf.oy - y * tf.baseScale];
+    }
+    function screenToMath(sx, sy, tf) {
+      return [(sx - tf.ox) / tf.baseScale, (tf.oy - sy) / tf.baseScale];
+    }
+
+    function draw() {
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      const tf = getTransform();
+
+      const alpha = parseFloat(document.getElementById('bgAlpha').value);
+      if (alpha > 0 && bgImg.complete) {
+        const [x0, y0] = mathToScreen(-4, 3, tf);
+        const [x1, y1] = mathToScreen(4, -3, tf);
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.drawImage(bgImg, x0, y0, x1 - x0, y1 - y0);
+        ctx.restore();
+      }
+
+      if (document.getElementById('showGrid').checked) {
+        ctx.lineWidth = 1;
+        ctx.font = '11px Consolas, monospace';
+        ctx.fillStyle = '#64748b';
+        for (let gx = -4; gx <= 4; gx++) {
+          const [sx] = mathToScreen(gx, 0, tf);
+          const [, sy0] = mathToScreen(gx, 3, tf);
+          const [, sy1] = mathToScreen(gx, -3, tf);
+          ctx.strokeStyle = gx === 0 ? 'rgba(51,65,85,0.45)' : 'rgba(148,163,184,0.28)';
+          ctx.beginPath(); ctx.moveTo(sx, sy0); ctx.lineTo(sx, sy1); ctx.stroke();
+          ctx.fillText(String(gx), sx + 3, sy1 - 4);
+        }
+        for (let gy = -3; gy <= 3; gy++) {
+          const [sx0, sy] = mathToScreen(-4, gy, tf);
+          const [sx1] = mathToScreen(4, gy, tf);
+          ctx.strokeStyle = gy === 0 ? 'rgba(51,65,85,0.45)' : 'rgba(148,163,184,0.28)';
+          ctx.beginPath(); ctx.moveTo(sx0, sy); ctx.lineTo(sx1, sy); ctx.stroke();
+          ctx.fillText(String(gy), sx0 + 4, sy - 3);
+        }
+      }
+
+      const colored = document.getElementById('colorMode').checked;
+      for (const s of SEGMENTS_DATA) {
+        const isHov = (hovered && hovered.id === s.id);
+        ctx.lineWidth = isHov ? 3.5 : Math.max(1.1, Math.min(2.2, 1.35 * Math.sqrt(zoom)));
+        if (isHov) ctx.strokeStyle = '#f59e0b';
+        else if (!colored) ctx.strokeStyle = '#141826';
+        else if (s.type === 'Y_OF_X') ctx.strokeStyle = '#d92662';
+        else if (s.type === 'X_OF_Y') ctx.strokeStyle = '#1d5fd6';
+        else ctx.strokeStyle = '#108a52';
+
+        ctx.beginPath();
+        for (let i = 0; i < s.pts.length; i++) {
+          const [px, py] = mathToScreen(s.pts[i][0], s.pts[i][1], tf);
+          if (i === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+      }
+
+      if (hovered && document.getElementById('showNodes').checked && hovered.type !== 'ELLIPSE') {
+        ctx.fillStyle = '#f59e0b';
+        ctx.strokeStyle = '#1e293b';
+        ctx.lineWidth = 1.2;
+        for (let i = 0; i < hovered.nodesT.length; i++) {
+          const t = hovered.nodesT[i], v = hovered.nodesV[i];
+          const mx = hovered.type === 'Y_OF_X' ? t : v;
+          const my = hovered.type === 'Y_OF_X' ? v : t;
+          const [sx, sy] = mathToScreen(mx, my, tf);
+          ctx.beginPath(); ctx.arc(sx, sy, 4, 0, 2 * Math.PI); ctx.fill(); ctx.stroke();
+        }
+      }
+    }
+
+    function updateFormulaBox(s) {
+      if (!s) return;
+      if (s.type === 'ELLIPSE') {
+        formulaBox.textContent =
+          `[段 #${s.id}] 分离椭圆方程 f(x) = g(y)\n` +
+          `f(x) = ((x - (${s.ecx.toFixed(4)})) / ${s.ea.toFixed(4)})²\n` +
+          `g(y) = 1 - ((y - (${s.ecy.toFixed(4)})) / ${s.eb.toFixed(4)})²\n` +
+          `定义域: x ∈ [${s.xMin.toFixed(3)}, ${s.xMax.toFixed(3)}], y ∈ [${s.yMin.toFixed(3)}, ${s.yMax.toFixed(3)}]\n` +
+          `最大误差: ${s.maxErrPx.toFixed(3)} px`;
+        return;
+      }
+      const deg = s.nodesT.length - 1;
+      const v = s.type === 'Y_OF_X' ? 'x' : 'y';
+      const eq = s.type === 'Y_OF_X' ? 'f(x) = L(x),  g(y) = y' : 'f(x) = x,  g(y) = L(y)';
+      const poly = s.mono.map((c, k) => {
+        const sign = k === 0 ? (c < 0 ? '-' : '') : (c >= 0 ? ' + ' : ' - ');
+        const term = k === 0 ? '' : (k === 1 ? '·u' : `·u^${k}`);
+        return `${sign}${Math.abs(c).toFixed(4)}${term}`;
+      }).join('');
+      const nodesStr = s.nodesT.map((t, i) => `  (${t.toFixed(4)}, ${s.nodesV[i].toFixed(4)})`).join('\n');
+      formulaBox.textContent =
+        `[段 #${s.id}] ${deg} 次切比雪夫-拉格朗日插值\n` +
+        `形式: ${eq}\n` +
+        `定义域: x ∈ [${s.xMin.toFixed(3)}, ${s.xMax.toFixed(3)}], y ∈ [${s.yMin.toFixed(3)}, ${s.yMax.toFixed(3)}]\n` +
+        `最大误差: ${s.maxErrPx.toFixed(3)} px\n\n` +
+        `标准化多项式 u = (${v} - (${s.centerT.toFixed(4)})) / ${s.halfSpanT.toFixed(4)}:\n` +
+        `L(${v}) = ${poly}\n\n` +
+        `Chebyshev-Lobatto 节点 (t_i, v_i):\n${nodesStr}`;
+    }
+
+    canvas.addEventListener('mousedown', e => { dragging = true; dragMoved = false; lastX = e.clientX; lastY = e.clientY; });
+    window.addEventListener('mouseup', () => { dragging = false; });
+    canvas.addEventListener('mousemove', e => {
+      if (dragging) {
+        panX += e.clientX - lastX;
+        panY += e.clientY - lastY;
+        if (Math.hypot(e.clientX - lastX, e.clientY - lastY) > 2) dragMoved = true;
+        lastX = e.clientX; lastY = e.clientY;
+        draw();
+        return;
+      }
+      const rect = canvas.getBoundingClientRect();
+      const tf = getTransform();
+      const [mx, my] = screenToMath(e.clientX - rect.left, e.clientY - rect.top, tf);
+      hud.textContent = `坐标: (${mx.toFixed(3)}, ${my.toFixed(3)}) | 缩放: ${zoom.toFixed(2)}x`;
+      const tol = 10 / tf.baseScale;
+      let best = null, bestD = tol * tol;
+      for (const s of SEGMENTS_DATA) {
+        if (mx < s.xMin - tol || mx > s.xMax + tol || my < s.yMin - tol || my > s.yMax + tol) continue;
+        for (const p of s.pts) {
+          const d2 = (p[0] - mx) ** 2 + (p[1] - my) ** 2;
+          if (d2 < bestD) { bestD = d2; best = s; }
+        }
+      }
+      if (best !== hovered) {
+        hovered = best;
+        if (hovered) updateFormulaBox(hovered);
+        draw();
+      }
+    });
+
+    canvas.addEventListener('wheel', e => {
+      e.preventDefault();
+      const rect = canvas.getBoundingClientRect();
+      const sx = e.clientX - rect.left, sy = e.clientY - rect.top;
+      const tf0 = getTransform();
+      const [mx, my] = screenToMath(sx, sy, tf0);
+      const factor = e.deltaY < 0 ? 1.15 : 1 / 1.15;
+      zoom = Math.max(0.4, Math.min(25, zoom * factor));
+      const tf1 = getTransform();
+      panX += sx - (tf1.ox + mx * tf1.baseScale);
+      panY += sy - (tf1.oy - my * tf1.baseScale);
+      draw();
+    }, { passive: false });
+
+    document.getElementById('bgAlpha').addEventListener('input', draw);
+    document.getElementById('colorMode').addEventListener('change', draw);
+    document.getElementById('showGrid').addEventListener('change', draw);
+    document.getElementById('showNodes').addEventListener('change', draw);
+    document.getElementById('resetView').addEventListener('click', () => { zoom = 1; panX = 0; panY = 0; draw(); });
+    document.getElementById('pureToggle').addEventListener('click', () => {
+      document.getElementById('bgAlpha').value = 0;
+      document.getElementById('colorMode').checked = false;
+      document.getElementById('showGrid').checked = false;
+      draw();
+    });
+
+    resize();
+  </script>
+</body>
+</html>
