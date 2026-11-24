@@ -1,4 +1,4 @@
-"""原子状态持久化、审计归档（JSONL）与多周期分资产胜率复盘器。"""
+"""原子状态/持仓/扫描快照持久化、JSONL 审计账本与多周期分资产胜率复盘器（v2.0）。"""
 
 from __future__ import annotations
 
@@ -12,54 +12,21 @@ from typing import Dict, List, Optional
 from pydantic import BaseModel, Field
 
 from wealth_radar.domain.errors import PersistenceError
-from wealth_radar.domain.models import AssetType, AuditRecord, FinalAction, RadarState
+from wealth_radar.domain.models import (
+    AssetType,
+    AuditRecord,
+    FinalAction,
+    PortfolioSnapshot,
+    RadarState,
+    ScanPacket,
+)
 
 
-def load_state(state_path: Path | str) -> RadarState:
-    """加载 state.json；若不存在则返回初始空状态。"""
-    path = Path(state_path)
-    if not path.exists():
-        return RadarState()
-    try:
-        raw = json.loads(path.read_text(encoding="utf-8"))
-        return RadarState.model_validate(raw)
-    except Exception as exc:
-        raise PersistenceError(f"读取状态文件 {path} 失败: {exc}") from exc
-
-
-def prune_stale_cache(state: RadarState, current_date: date, keep_days: int = 7) -> RadarState:
-    """清理超过 keep_days 天的旧缓存键，避免 state.json 无限膨胀。"""
-    cutoff = current_date - timedelta(days=keep_days)
-    cleaned = state.model_copy(deep=True)
-    kept: Dict[str, object] = {}
-    for key, verdict in cleaned.daily_audit_cache.items():
-        parts = key.split("|")
-        if len(parts) >= 2:
-            try:
-                key_date = date.fromisoformat(parts[1])
-                if key_date < cutoff:
-                    continue
-            except ValueError:
-                pass
-        kept[key] = verdict
-    cleaned.daily_audit_cache = kept  # type: ignore[assignment]
-    return cleaned
-
-
-def save_state_atomic(
-    state_path: Path | str,
-    state: RadarState,
-    current_date: Optional[date] = None,
-) -> None:
-    """采用同目录 .tmp + os.replace 原子写入 state.json。"""
-    path = Path(state_path)
+def _atomic_write_json(path: Path, text: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    to_save = prune_stale_cache(state, current_date) if current_date is not None else state
-
     tmp_path = path.with_suffix(path.suffix + ".tmp")
     try:
-        payload = json.dumps(to_save.model_dump(mode="json"), ensure_ascii=False, indent=2)
-        tmp_path.write_text(payload, encoding="utf-8")
+        tmp_path.write_text(text, encoding="utf-8")
         os.replace(tmp_path, path)
     except Exception as exc:
         if tmp_path.exists():
@@ -67,7 +34,50 @@ def save_state_atomic(
                 tmp_path.unlink()
             except OSError:
                 pass
-        raise PersistenceError(f"原子写入状态文件 {path} 失败: {exc}") from exc
+        raise PersistenceError(f"原子写入文件 {path} 失败: {exc}") from exc
+
+
+def load_state(state_path: Path | str) -> RadarState:
+    """加载 state.json；若不存在则返回初始空状态（向后兼容旧版含缓存字段的文件）。"""
+    path = Path(state_path)
+    if not path.exists():
+        return RadarState()
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+        # 兼容 v1.x state.json（忽略已移除的 daily_audit_cache）
+        if isinstance(raw, dict):
+            raw = {"index_tiers": raw.get("index_tiers", {})}
+        return RadarState.model_validate(raw)
+    except Exception as exc:
+        raise PersistenceError(f"读取状态文件 {path} 失败: {exc}") from exc
+
+
+def save_state_atomic(state_path: Path | str, state: RadarState) -> None:
+    """采用同目录 .tmp + os.replace 原子写入 state.json。"""
+    payload = json.dumps(state.model_dump(mode="json"), ensure_ascii=False, indent=2)
+    _atomic_write_json(Path(state_path), payload)
+
+
+def save_portfolio_atomic(portfolio_path: Path | str, portfolio: PortfolioSnapshot) -> None:
+    """采用同目录 .tmp + os.replace 原子写入 portfolio.json。"""
+    payload = json.dumps(portfolio.model_dump(mode="json"), ensure_ascii=False, indent=2)
+    _atomic_write_json(Path(portfolio_path), payload)
+
+
+def save_last_scan_atomic(scan_path: Path | str, packet: ScanPacket) -> None:
+    """保存最近一次确定性扫描快照，供 record-audit 匹配不可篡改的 EvidenceBundle。"""
+    payload = json.dumps(packet.model_dump(mode="json"), ensure_ascii=False, indent=2)
+    _atomic_write_json(Path(scan_path), payload)
+
+
+def load_last_scan(scan_path: Path | str) -> Optional[ScanPacket]:
+    path = Path(scan_path)
+    if not path.exists():
+        return None
+    try:
+        return ScanPacket.model_validate_json(path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        raise PersistenceError(f"读取最近扫描快照 {path} 失败: {exc}") from exc
 
 
 def reset_symbol_tier_state(state_path: Path | str, symbol: str) -> bool:
@@ -83,7 +93,7 @@ def reset_symbol_tier_state(state_path: Path | str, symbol: str) -> bool:
 
 
 def append_audit_records(audits_dir: Path | str, records: List[AuditRecord]) -> Optional[Path]:
-    """将当日审计记录按 JSONL 追加写入 data/audits/YYYY-MM-DD.jsonl。"""
+    """将审计记录按 JSONL 追加写入 data/audits/YYYY-MM-DD.jsonl。"""
     if not records:
         return None
     directory = Path(audits_dir)
@@ -112,7 +122,7 @@ def load_audit_records(
     days: int = 30,
     as_of_date: Optional[date] = None,
 ) -> List[AuditRecord]:
-    """读取最近 days 天内的所有审计记录。"""
+    """读取最近 days 天内的所有审计记录（兼容 v1.x 与 v2.0 归档格式）。"""
     directory = Path(audits_dir)
     if not directory.exists():
         return []
@@ -133,7 +143,13 @@ def load_audit_records(
             stripped = line.strip()
             if not stripped:
                 continue
-            record = AuditRecord.model_validate_json(stripped)
+            raw = json.loads(stripped)
+            # 兼容 v1.x 归档行（将 provider/model 映射为 auditor）
+            if "auditor" not in raw and "provider" in raw:
+                raw["auditor"] = f"{raw.get('provider')}:{raw.get('model', '')}"
+            if "skill_version" not in raw and "prompt_version" in raw:
+                raw["skill_version"] = str(raw["prompt_version"])
+            record = AuditRecord.model_validate(raw)
             if cutoff <= record.bundle.trade_date <= anchor:
                 records.append(record)
 

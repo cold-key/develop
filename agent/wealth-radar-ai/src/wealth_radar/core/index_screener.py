@@ -197,6 +197,7 @@ def screen_index_targets(
                 approved_amount_cny=approved_amount,
                 budget_allowed=budget_allowed,
                 budget_reason=budget_reason,
+                qdii_router_enabled=target.qdii_router_enabled,
                 budget_check=budget_check,
                 user_holding_context=user_holding_context,
                 trigger_summary=trigger_summary,

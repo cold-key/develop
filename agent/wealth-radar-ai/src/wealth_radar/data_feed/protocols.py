@@ -1,9 +1,9 @@
-"""行情、新闻与可转债数据源协议（支持 100% 离线 Mock 注入）。"""
+"""行情、新闻、可转债与 QDII 平替数据源协议（支持 100% 离线 Mock 注入）。"""
 
 from __future__ import annotations
 
 from datetime import date
-from typing import List, Optional, Protocol, Sequence
+from typing import Dict, List, Optional, Protocol, Sequence
 
 from wealth_radar.domain.models import (
     CBIpoItem,
@@ -11,6 +11,9 @@ from wealth_radar.domain.models import (
     IndexQuoteSeries,
     MarketTimezone,
     NoticeItem,
+    PriceBar,
+    QDIIHoldingItem,
+    QDIIPurchaseInfo,
 )
 
 
@@ -56,3 +59,17 @@ class CBProvider(Protocol):
     ) -> List[NoticeItem]: ...
 
     def fetch_latest_cb_price(self, bond_code: str) -> Optional[float]: ...
+
+
+class QDIIProvider(Protocol):
+    """场外 QDII 申购限额、季报持仓、历史净值与场内 ETF 净值提供协议。"""
+
+    def fetch_purchase_info_map(self, fund_codes: Sequence[str]) -> Dict[str, QDIIPurchaseInfo]: ...
+
+    def fetch_quarterly_holdings(
+        self, holdings_code: str, year: int
+    ) -> List[QDIIHoldingItem]: ...
+
+    def fetch_fund_nav_series(self, fund_code: str, lookback_days: int) -> List[PriceBar]: ...
+
+    def fetch_etf_latest_nav_map(self, etf_codes: Sequence[str]) -> Dict[str, float]: ...

@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 from datetime import date
-from typing import Dict, List, Sequence
+from typing import Dict, List, Optional, Sequence
 
 from wealth_radar.config.loader import EvidenceBudgetConfig
 from wealth_radar.domain.models import (
@@ -15,6 +15,7 @@ from wealth_radar.domain.models import (
     EvidenceBundle,
     IndexCandidate,
     NoticeItem,
+    QDIIRoutePlan,
 )
 
 DEFAULT_HIGH_PRIORITY_KEYWORDS: tuple[str, ...] = (
@@ -123,8 +124,8 @@ def pack_news_items(
 
 
 def serialize_bundle_for_hash(bundle: EvidenceBundle) -> str:
-    """生成规范化 JSON 字符串（不含 evidence_sha256 字段），用于字符数计量与 SHA256 计算。"""
-    payload = bundle.model_dump(mode="json", exclude={"evidence_sha256"})
+    """生成规范化 JSON 字符串（不含 evidence_sha256 与大体积 qdii_route_plan 明细），用于字符上限计量与 SHA256 计算。"""
+    payload = bundle.model_dump(mode="json", exclude={"evidence_sha256", "qdii_route_plan"})
     return json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
 
 
@@ -230,8 +231,9 @@ def pack_index_evidence(
     news_items: List[NoticeItem],
     trade_date: date,
     budget: EvidenceBudgetConfig,
+    qdii_route_plan: Optional[QDIIRoutePlan] = None,
 ) -> EvidenceBundle:
-    """为命中的指数回撤候选组装 INDEX_BRIEFING 证据包。"""
+    """为命中的指数回撤候选组装 INDEX_BRIEFING 证据包（可选附带 QDII 平替路由计划）。"""
     metrics: Dict[str, float | str] = {
         "latest_close": candidate.latest_close,
         "peak_120d": candidate.peak_120d,
@@ -242,7 +244,9 @@ def pack_index_evidence(
         "market_timezone": candidate.market_timezone,
         "correlation_group": candidate.correlation_group,
     }
-    return build_evidence_bundle(
+    if qdii_route_plan is not None:
+        metrics["qdii_route_summary"] = qdii_route_plan.summary
+    bundle = build_evidence_bundle(
         trade_date=trade_date,
         asset_type="INDEX_BATCH",
         audit_mode="INDEX_BRIEFING",
@@ -259,6 +263,8 @@ def pack_index_evidence(
         high_priority_keywords=(),
         budget=budget,
     )
+    bundle.qdii_route_plan = qdii_route_plan
+    return bundle
 
 
 def pack_cb_evidence(

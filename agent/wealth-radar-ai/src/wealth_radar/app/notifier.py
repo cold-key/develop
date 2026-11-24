@@ -1,4 +1,4 @@
-"""Rich 终端报告渲染与 Webhook 分级摘要推送（飞书 / 企微 / Telegram）。"""
+"""Rich 终端渲染（ScanPacket / QDII 路由 / 持仓 / 复盘）与 Sentinel Webhook 推送（v2.0）。"""
 
 from __future__ import annotations
 
@@ -10,7 +10,14 @@ from rich.panel import Panel
 from rich.table import Table
 
 from wealth_radar.app.audit_store import AssetReviewReport
-from wealth_radar.domain.models import AssetType, AuditRecord, FinalAction, PipelineReport
+from wealth_radar.domain.models import (
+    AssetType,
+    AuditRecord,
+    FinalAction,
+    PortfolioSnapshot,
+    QDIIRoutePlan,
+    ScanPacket,
+)
 
 SEVERITY_STYLE = {
     "CRITICAL": "bold red",
@@ -25,109 +32,79 @@ ACTION_STYLE = {
 }
 
 
-def format_webhook_summary(report: PipelineReport) -> str:
-    """生成高信噪比的 Markdown/纯文本分级推送摘要（强赎与打新强制置顶）。"""
-    mode_tag = "DRY-RUN" if report.dry_run else ("POSITIONS-ONLY" if report.positions_only else "LIVE")
+def format_sentinel_webhook(packet: ScanPacket) -> str:
+    """生成零 LLM 自动哨兵的分级推送摘要（强赎与打新置顶，有信号提醒唤起 Skill 深度研判）。"""
+    mode_tag = "DRY-RUN" if packet.dry_run else "SENTINEL"
     lines: List[str] = [
-        f"【wealth-radar-ai 投研风控日报 | {report.trade_date.isoformat()} | {mode_tag}】",
+        f"【wealth-radar-ai 自动哨兵 | {packet.trade_date.isoformat()} | {mode_tag}】",
     ]
 
-    # 1. Stage 0 置顶持仓风控告警
-    if report.position_alerts:
+    if packet.position_alerts:
         lines.append("\n## 🚨 Stage 0 持仓存续期预警（最高优先级）")
-        for alert in report.position_alerts:
+        for alert in packet.position_alerts:
             lines.append(
                 f"- [{alert.severity}][{alert.alert_type}] {alert.target_name}({alert.target_id}): "
                 f"{alert.message} | 建议：{alert.recommended_action}"
             )
     else:
-        lines.append("\n## ✅ Stage 0 持仓存续期预警：暂无异常")
+        lines.append("\n## ✅ Stage 0 持仓存续期守卫：暂无异常")
 
-    # 2. 今日可转债打新置顶
-    if not report.positions_only:
-        if report.cb_ipos:
-            lines.append("\n## 🎯 今日可转债打新（顶格申购）")
-            for ipo in report.cb_ipos:
-                rating_txt = f" | 评级 {ipo.credit_rating}" if ipo.credit_rating else ""
-                lines.append(f"- {ipo.bond_name}({ipo.bond_code}){rating_txt}")
-        else:
-            lines.append("\n## 🎯 今日可转债打新：无新债申购")
-        if report.ipo_cash_warning:
-            lines.append(f"- ⚠️ 缴款提示：{report.ipo_cash_warning}")
+    if packet.cb_ipos:
+        lines.append("\n## 🎯 今日可转债打新（顶格申购）")
+        for ipo in packet.cb_ipos:
+            rating_txt = f" | 评级 {ipo.credit_rating}" if ipo.credit_rating else ""
+            lines.append(f"- {ipo.bond_name}({ipo.bond_code}){rating_txt}")
+    else:
+        lines.append("\n## 🎯 今日可转债打新：无新债申购")
+    if packet.ipo_cash_warning:
+        lines.append(f"- ⚠️ 缴款提示：{packet.ipo_cash_warning}")
 
-    # 3. Stage 1 & 2 指数主线
-    if not report.positions_only:
-        index_records = [r for r in report.audit_records if r.bundle.asset_type == "INDEX_BATCH"]
-        blocked_index = [c for c in report.index_candidates if not c.budget_allowed]
-        lines.append("\n## 📈 指数回撤主线（INDEX_BRIEFING）")
-        if not index_records and not blocked_index and not report.index_candidates:
-            lines.append("- 今日无新触发回撤档位。")
-        for cand in blocked_index:
-            lines.append(f"- [BUDGET_BLOCKED] {cand.name}({cand.symbol}): {cand.trigger_summary}")
-        if not index_records:
-            for cand in [c for c in report.index_candidates if c.budget_allowed]:
-                lines.append(
-                    f"- [NO-LLM] {cand.name}({cand.symbol}): {cand.trigger_summary} | {cand.data_as_of}"
-                )
-        for rec in index_records:
-            v = rec.verdict
-            cache_tag = " [CACHE]" if rec.from_cache else ""
-            attr = f" | 归因：{v.drawdown_attribution}" if v.drawdown_attribution else ""
+    if packet.index_candidates:
+        lines.append("\n## 📈 指数回撤主线命中（建议唤起 Antigravity / Codex Skill 深度研判）")
+        for cand in packet.index_candidates:
+            tag = "OK" if cand.budget_allowed else "BUDGET_BLOCKED"
+            lines.append(f"- [{tag}] {cand.name}({cand.symbol}): {cand.trigger_summary}")
+        if packet.qdii_route_plan is not None:
+            lines.append(f"- 🔀 QDII平替路由：{packet.qdii_route_plan.summary}")
+
+    if packet.cb_candidates:
+        lines.append(f"\n## 🛡️ 合规双低可转债候选（{len(packet.cb_candidates)} 只，待 Skill CRO 排雷）")
+        for cb_cand in packet.cb_candidates:
+            warn = f" | ⚠️ {cb_cand.commission_warning}" if cb_cand.commission_warning else ""
             lines.append(
-                f"- [{v.final_action}]{cache_tag} {v.target_name}({v.target_id}): "
-                f"{rec.bundle.trigger_summary}{attr} | 风险：{v.bear_case_arguments[0]}"
+                f"- {cb_cand.row.bond_name}({cb_cand.row.bond_code}): {cb_cand.trigger_summary}{warn}"
             )
 
-    # 4. Stage 1 & 2 可转债低价下修
-    if not report.positions_only:
-        cb_records = [r for r in report.audit_records if r.bundle.asset_type == "CB_CONVEX"]
-        lines.append("\n## 🛡️ 可转债低价下修审计（CRO_VETO）")
-        if not report.cb_candidates:
-            lines.append("- 今日无满足信用+价格双底线的候选转债。")
-        elif not cb_records:
-            for cb_cand in report.cb_candidates:
-                warn = f" | ⚠️ {cb_cand.commission_warning}" if cb_cand.commission_warning else ""
-                lines.append(
-                    f"- [NO-LLM] {cb_cand.row.bond_name}({cb_cand.row.bond_code}): {cb_cand.trigger_summary}{warn}"
-                )
-        for rec in cb_records:
-            v = rec.verdict
-            cache_tag = " [CACHE]" if rec.from_cache else ""
-            veto_txt = f" | 否决：{v.veto_reason}" if v.hard_veto and v.veto_reason else ""
-            lockup_txt = f" | 锁定期：{v.lockup_expiry_date}" if v.lockup_expiry_date else ""
-            lines.append(
-                f"- [{v.final_action}]{cache_tag} {v.target_name}({v.target_id}) "
-                f"(置信度 {v.confidence_score}): {rec.bundle.trigger_summary}{veto_txt}{lockup_txt}"
-            )
-
-    # 5. 局部数据源异常隔离提示
-    if report.section_errors:
+    if packet.section_errors:
         lines.append("\n## ⚠️ 局部数据源降级告警（已故障隔离）")
-        for section, err in report.section_errors.items():
+        for section, err in packet.section_errors.items():
             lines.append(f"- {section}: {err}")
+
+    if packet.has_actionable_signal:
+        lines.append("\n💡 检测到有效投研/风控信号，建议在 Antigravity 或 Codex 中触发 `wealth-radar` Skill 执行深度联网排雷与归档。")
 
     return "\n".join(lines)
 
 
-def render_terminal_report(report: PipelineReport, console: Optional[Console] = None) -> None:
-    """使用 Rich 在终端渲染结构化彩色报告。"""
+def render_scan_packet(packet: ScanPacket, console: Optional[Console] = None) -> None:
+    """在终端以 Rich 表格渲染扫描结果（含 Stage 0、打新、指数回撤、QDII 平替路由与合规转债）。"""
     out = console or Console()
-    mode_tag = "DRY-RUN" if report.dry_run else ("POSITIONS-ONLY" if report.positions_only else "LIVE")
+    mode_tag = "DRY-RUN" if packet.dry_run else "LIVE"
     out.print(
         Panel.fit(
-            f"[bold cyan]wealth-radar-ai 投研风控雷达[/bold cyan]  |  日期: {report.trade_date.isoformat()}  |  模式: [bold]{mode_tag}[/bold]",
+            f"[bold cyan]wealth-radar-ai 确定性投研哨兵 & 扫描器 (v2.0)[/bold cyan]  |  日期: {packet.trade_date.isoformat()}  |  模式: [bold]{mode_tag}[/bold]",
             border_style="cyan",
         )
     )
 
     # Stage 0
-    if report.position_alerts:
+    if packet.position_alerts:
         alert_table = Table(title="Stage 0 持仓存续期预警（置顶）", show_lines=True)
         alert_table.add_column("级别", width=10)
         alert_table.add_column("类型", width=22)
         alert_table.add_column("标的", width=18)
         alert_table.add_column("详情与行动建议")
-        for alert in report.position_alerts:
+        for alert in packet.position_alerts:
             style = SEVERITY_STYLE.get(alert.severity, "white")
             alert_table.add_row(
                 f"[{style}]{alert.severity}[/{style}]",
@@ -137,76 +114,195 @@ def render_terminal_report(report: PipelineReport, console: Optional[Console] = 
             )
         out.print(alert_table)
     else:
-        out.print("[green]Stage 0 持仓存续期守卫：暂无强赎、止盈或信用恶化告警。[/green]")
+        out.print("[green]Stage 0 持仓存续期守卫：暂无强赎、止盈、风格漂移或信用恶化告警。[/green]")
 
-    if not report.positions_only:
-        # 打新
-        if report.cb_ipos:
-            ipo_table = Table(title="今日可转债打新（顶格申购）")
-            ipo_table.add_column("代码")
-            ipo_table.add_column("名称")
-            ipo_table.add_column("评级")
-            ipo_table.add_column("规模(亿)")
-            for ipo in report.cb_ipos:
-                scale = f"{ipo.issue_scale_billion:.2f}" if ipo.issue_scale_billion is not None else "-"
-                ipo_table.add_row(ipo.bond_code, ipo.bond_name, ipo.credit_rating or "-", scale)
-            out.print(ipo_table)
-        else:
-            out.print("[dim]今日可转债打新：无新债可申购。[/dim]")
-        if report.ipo_cash_warning:
-            out.print(f"[yellow]⚠️ 打新资金提示: {report.ipo_cash_warning}[/yellow]")
+    # 打新
+    if packet.cb_ipos:
+        ipo_table = Table(title="今日可转债打新（顶格申购）")
+        ipo_table.add_column("代码")
+        ipo_table.add_column("名称")
+        ipo_table.add_column("评级")
+        ipo_table.add_column("规模(亿)")
+        for ipo in packet.cb_ipos:
+            scale = f"{ipo.issue_scale_billion:.2f}" if ipo.issue_scale_billion is not None else "-"
+            ipo_table.add_row(ipo.bond_code, ipo.bond_name, ipo.credit_rating or "-", scale)
+        out.print(ipo_table)
+    else:
+        out.print("[dim]今日可转债打新：无新债可申购。[/dim]")
+    if packet.ipo_cash_warning:
+        out.print(f"[yellow]⚠️ 打新资金提示: {packet.ipo_cash_warning}[/yellow]")
 
-        # 审计结果表
-        if report.audit_records:
-            audit_table = Table(title="Stage 2 双模式 LLM 审计结论", show_lines=True)
-            audit_table.add_column("模式", width=15)
-            audit_table.add_column("标的", width=18)
-            audit_table.add_column("结论", width=14)
-            audit_table.add_column("关键证据 / 归因 / 空头论据")
-            for rec in report.audit_records:
-                _add_audit_row(audit_table, rec)
-            out.print(audit_table)
-        else:
-            if report.index_candidates or report.cb_candidates:
-                out.print("[yellow]Stage 1 命中候选但未执行 LLM 审计（--no-llm 或预算拦截）。[/yellow]")
-                for cand in report.index_candidates:
-                    out.print(f"  - [INDEX] {cand.name}({cand.symbol}): {cand.trigger_summary}")
-                for cb_cand in report.cb_candidates:
-                    out.print(f"  - [CB] {cb_cand.row.bond_name}({cb_cand.row.bond_code}): {cb_cand.trigger_summary}")
-            else:
-                out.print("[dim]今日 Stage 1 未命中新的开仓候选。[/dim]")
+    # 指数回撤候选
+    if packet.index_candidates:
+        idx_table = Table(title="Stage 1 指数回撤主线触发", show_lines=True)
+        idx_table.add_column("标的")
+        idx_table.add_column("当前回撤", justify="right")
+        idx_table.add_column("拟投/核准金额", justify="right")
+        idx_table.add_column("状态与时区说明")
+        for cand in packet.index_candidates:
+            status_style = "green" if cand.budget_allowed else "red"
+            idx_table.add_row(
+                f"{cand.name}\n({cand.symbol})",
+                f"{cand.drawdown_pct:.2f}%",
+                f"[{status_style}]{cand.approved_amount_cny:.0f} / {cand.requested_amount_cny:.0f} 元[/{status_style}]",
+                f"{cand.trigger_summary}\n[dim]{cand.data_as_of}[/dim]",
+            )
+        out.print(idx_table)
+    else:
+        out.print("[dim]指数回撤主线：今日无新触发档位。[/dim]")
 
-    if report.section_errors:
-        err_lines = "\n".join(f"- {k}: {v}" for k, v in report.section_errors.items())
+    # QDII 平替路由表
+    if packet.qdii_route_plan is not None:
+        render_qdii_route_plan(packet.qdii_route_plan, console=out)
+
+    # 合规双低可转债候选
+    if packet.cb_candidates:
+        cb_table = Table(title="Stage 1 合规双低可转债候选（待 Agent Skill CRO 排雷）", show_lines=True)
+        cb_table.add_column("排名", justify="right")
+        cb_table.add_column("转债")
+        cb_table.add_column("现价/溢价/双低", justify="right")
+        cb_table.add_column("YTM / 剩余 / 评级", justify="right")
+        cb_table.add_column("正股 / 提示")
+        for cb_cand in packet.cb_candidates:
+            r = cb_cand.row
+            extra = f"\n[yellow]⚠️ {cb_cand.commission_warning}[/yellow]" if cb_cand.commission_warning else ""
+            cb_table.add_row(
+                str(cb_cand.rank),
+                f"{r.bond_name}\n({r.bond_code})",
+                f"{r.price:.2f} / {r.premium_rate_pct:.1f}% / [bold]{cb_cand.double_low:.2f}[/bold]",
+                f"{r.ytm_pct:+.2f}% / {r.remaining_years:.2f}y / {r.credit_rating}",
+                f"{r.stock_name}({r.stock_code}) {r.stock_price:.2f}元{extra}",
+            )
+        out.print(cb_table)
+    else:
+        out.print("[dim]可转债初筛：今日无满足价格+信用双底线的候选转债。[/dim]")
+
+    if packet.section_errors:
+        err_lines = "\n".join(f"- {k}: {v}" for k, v in packet.section_errors.items())
         out.print(Panel(err_lines, title="局部数据源降级告警（已隔离）", border_style="yellow"))
 
 
-def _add_audit_row(table: Table, rec: AuditRecord) -> None:
-    v = rec.verdict
+def render_qdii_route_plan(plan: QDIIRoutePlan, console: Optional[Console] = None) -> None:
+    """渲染 QDII 平替白名单体检表、拆单路线与场内 ETF 溢价守卫表。"""
+    out = console or Console()
+    out.print(Panel(plan.summary, title=f"QDII 平替智能路由 ({plan.benchmark_symbol})", border_style="magenta"))
+
+    table = Table(title="QDII 平替池体检（防老鼠仓 / 防风格漂移 / 实时限额）", show_lines=True)
+    table.add_column("基金代码/名称")
+    table.add_column("申购状态/日限额")
+    table.add_column("美股纯度 / A港占比", justify="right")
+    table.add_column("120日相关性", justify="right")
+    table.add_column("纯度分", justify="right")
+    table.add_column("门禁结果")
+
+    for ev in plan.proxy_evaluations:
+        limit_str = "不限额" if ev.daily_limit_cny is None else f"{ev.daily_limit_cny:,.0f} 元"
+        us_str = f"{ev.us_developed_top10_pct:.1f}%" if ev.us_developed_top10_pct is not None else ("被动" if ev.is_passive else "-")
+        cn_str = f"{ev.cn_hk_top10_pct:.1f}%" if ev.cn_hk_top10_pct is not None else "-"
+        corr_str = f"{ev.corr_with_benchmark:.2f}" if ev.corr_with_benchmark is not None else "-"
+        result_str = (
+            "[bold green]PASS[/bold green]"
+            if ev.passed
+            else "[bold red]BLOCK[/bold red]\n" + "；".join(ev.reject_reasons)
+        )
+        table.add_row(
+            f"{ev.name}\n({ev.fund_code} | {ev.company})",
+            f"{ev.purchase_status}\n{limit_str}",
+            f"{us_str} / {cn_str}",
+            corr_str,
+            f"{ev.purity_score:.1f}",
+            result_str,
+        )
+    out.print(table)
+
+    if plan.etf_premiums:
+        etf_table = Table(title="场内纳指 ETF 实时溢价守卫")
+        etf_table.add_column("代码")
+        etf_table.add_column("名称")
+        etf_table.add_column("现价", justify="right")
+        etf_table.add_column("最新净值", justify="right")
+        etf_table.add_column("实时溢价率", justify="right")
+        etf_table.add_column("可执行")
+        for etf in plan.etf_premiums:
+            prem_style = "green" if etf.executable else "bold red"
+            status_txt = "[green]可考虑[/green]" if etf.executable else "[bold red]严禁追高[/bold red]"
+            etf_table.add_row(
+                etf.code,
+                etf.name,
+                f"{etf.spot_price:.4f}",
+                f"{etf.latest_nav:.4f}",
+                f"[{prem_style}]{etf.premium_pct:+.2f}%[/{prem_style}]",
+                status_txt,
+            )
+        out.print(etf_table)
+
+
+def render_audit_record(record: AuditRecord, console: Optional[Console] = None) -> None:
+    """渲染经代码层硬门禁校验后的归档审计记录。"""
+    out = console or Console()
+    v = record.verdict
     style = ACTION_STYLE.get(v.final_action, "white")
-    action_cell = f"[{style}]{v.final_action}[/{style}]\nveto={v.hard_veto}\nscore={v.confidence_score}"
-    if rec.from_cache:
-        action_cell += "\n[dim](cache)[/dim]"
-
-    details: List[str] = [f"[bold]{rec.bundle.trigger_summary}[/bold]"]
+    body = [
+        f"标的：{v.target_name} ({v.target_id}) | 模式：{v.audit_mode} | 审计价：{record.price_at_audit}",
+        f"最终结论：[{style}]{v.final_action}[/{style}] (hard_veto={v.hard_veto}, confidence={v.confidence_score})",
+    ]
     if v.veto_reason:
-        details.append(f"[red]否决事实: {v.veto_reason}[/red]")
-    if v.lockup_expiry_date:
-        details.append(f"不下修锁定期: {v.lockup_expiry_date}")
+        body.append(f"[red]否决事实：{v.veto_reason}[/red]")
+    if v.execution_plan:
+        body.append(f"执行方案：{v.execution_plan}")
     if v.drawdown_attribution:
-        details.append(f"下跌归因: {v.drawdown_attribution}")
-    details.append("空头/风险: " + "；".join(v.bear_case_arguments))
-    if v.evidence_citations:
-        details.append("[dim]引用: " + "；".join(v.evidence_citations[:3]) + "[/dim]")
-    if v.missing_info_warnings:
-        details.append("[yellow]缺失警告: " + "；".join(v.missing_info_warnings) + "[/yellow]")
+        body.append(f"下跌归因：{v.drawdown_attribution}")
+    if record.gate_overrides:
+        body.append("[bold yellow]代码硬门禁覆写：" + "；".join(record.gate_overrides) + "[/bold yellow]")
+    out.print(Panel("\n".join(body), title="审计记录已通过硬门禁并落盘", border_style="green" if not record.gate_overrides else "yellow"))
 
-    table.add_row(
-        f"{v.audit_mode}\n[dim]{rec.prompt_version}[/dim]",
-        f"{v.target_name}\n({v.target_id})",
-        action_cell,
-        "\n".join(details),
-    )
+
+def render_portfolio(portfolio: PortfolioSnapshot, console: Optional[Console] = None) -> None:
+    out = console or Console()
+    out.print(Panel.fit(f"[bold cyan]当前持仓快照[/bold cyan]  |  更新日期: {portfolio.updated_at.isoformat()}"))
+
+    if portfolio.index_holdings:
+        t1 = Table(title="指数 / QDII 持仓")
+        t1.add_column("信号锚")
+        t1.add_column("名称 / QDII代码")
+        t1.add_column("相关性组")
+        t1.add_column("已投(元)", justify="right")
+        t1.add_column("参考均价", justify="right")
+        t1.add_column("首次买入")
+        for h in portfolio.index_holdings:
+            qdii_txt = f"\nQDII: {h.qdii_fund_code}" if h.qdii_fund_code else ""
+            t1.add_row(
+                h.symbol,
+                f"{h.name} ({h.fund_class}类){qdii_txt}",
+                h.correlation_group,
+                f"{h.invested_cny:,.2f}",
+                f"{h.avg_entry_price:.4f}",
+                h.first_buy_date.isoformat(),
+            )
+        out.print(t1)
+    else:
+        out.print("[dim]指数 / QDII 持仓：空仓[/dim]")
+
+    if portfolio.cb_holdings:
+        t2 = Table(title="可转债持仓")
+        t2.add_column("转债代码/名称")
+        t2.add_column("正股代码")
+        t2.add_column("张数", justify="right")
+        t2.add_column("成本价", justify="right")
+        t2.add_column("成本合计(元)", justify="right")
+        t2.add_column("买入日期")
+        for cb_h in portfolio.cb_holdings:
+            t2.add_row(
+                f"{cb_h.bond_name} ({cb_h.bond_code})",
+                cb_h.stock_code,
+                str(cb_h.quantity),
+                f"{cb_h.avg_cost_price:.3f}",
+                f"{cb_h.quantity * cb_h.avg_cost_price:,.2f}",
+                cb_h.buy_date.isoformat(),
+            )
+        out.print(t2)
+    else:
+        out.print("[dim]可转债持仓：空仓[/dim]")
 
 
 def render_review_report(
@@ -260,15 +356,15 @@ def render_review_report(
 
 def send_webhook(
     webhook_url: str,
-    report: PipelineReport,
+    packet: ScanPacket,
     timeout_sec: float = 10.0,
     http_client: Optional[httpx.Client] = None,
 ) -> bool:
-    """将分级摘要推送至飞书 / 企微 / Telegram 或通用 Webhook。"""
+    """将自动哨兵分级摘要推送至飞书 / 企微 / Telegram 或通用 Webhook。"""
     if not webhook_url.strip():
         return False
 
-    summary = format_webhook_summary(report)
+    summary = format_sentinel_webhook(packet)
     lower_url = webhook_url.lower()
     if "feishu" in lower_url or "larksuite" in lower_url:
         payload: dict[str, object] = {"msg_type": "text", "content": {"text": summary}}

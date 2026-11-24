@@ -1,4 +1,4 @@
-"""YAML 配置、环境变量与持仓快照加载器（含严格预算一致性校验）。"""
+"""YAML 配置、可选环境变量与持仓快照加载器（v2.0 — 零 LLM Key，含 QDII 路由配置与预算一致性校验）。"""
 
 from __future__ import annotations
 
@@ -23,11 +23,12 @@ class IndexTierConfig(BaseModel):
 
 class IndexTargetConfig(BaseModel):
     symbol: str
-    source: Literal["yfinance", "akshare"]
+    source: Literal["yfinance", "akshare", "akshare_us"]
     market_timezone: MarketTimezone = "CN"
     correlation_group: str
     name: str
     budget_cny: float = Field(gt=0)
+    qdii_router_enabled: bool = False
     tiers: List[IndexTierConfig] = Field(min_length=1)
 
     @model_validator(mode="after")
@@ -40,7 +41,6 @@ class IndexTargetConfig(BaseModel):
         drawdowns = [t.drawdown_pct for t in self.tiers]
         if len(set(drawdowns)) != len(drawdowns):
             raise ValueError(f"标的 {self.symbol} 存在重复的回撤档位: {drawdowns}")
-        # 按回撤由浅到深排序（例如 -5.0, -10.0, -15.0）
         self.tiers = sorted(self.tiers, key=lambda t: t.drawdown_pct, reverse=True)
         return self
 
@@ -71,6 +71,32 @@ class IndexMonitorConfig(BaseModel):
                     f"标的 {target.symbol} 预算 {target.budget_cny} 超过所属组 '{target.correlation_group}' 上限 {group_limit}"
                 )
         return self
+
+
+class OnExchangeETFConfig(BaseModel):
+    code: str
+    name: str
+
+
+class QDIIProxyItemConfig(BaseModel):
+    fund_code: str
+    holdings_code: str
+    name: str
+    company: str
+    is_passive: bool = False
+
+
+class QDIIRouterConfig(BaseModel):
+    benchmark_symbol: str = "QQQ"
+    min_us_developed_top10_pct: float = Field(ge=0, le=100, default=65.0)
+    max_cn_hk_top10_pct: float = Field(ge=0, le=100, default=20.0)
+    min_corr_with_benchmark: float = Field(ge=-1.0, le=1.0, default=0.65)
+    max_etf_premium_pct: float = Field(ge=0, default=2.0)
+    forbidden_name_keywords: List[str] = Field(
+        default_factory=lambda: ["持有期", "定开", "封闭", "美元", "港元"]
+    )
+    on_exchange_etfs: List[OnExchangeETFConfig] = Field(default_factory=list)
+    proxy_pool: List[QDIIProxyItemConfig] = Field(default_factory=list)
 
 
 class CBScreenerConfig(BaseModel):
@@ -121,30 +147,17 @@ class EvidenceBudgetConfig(BaseModel):
     max_chars_per_bundle: int = Field(ge=500, default=3200)
 
 
-class LLMConfig(BaseModel):
-    provider: Literal["gemini", "openai_compatible"] = "gemini"
-    model: str = "gemini-2.5-flash"
-    base_url: Optional[str] = None
-    temperature: float = Field(ge=0.0, le=1.0, default=0.1)
-    timeout_sec: int = Field(ge=5, default=30)
-    max_parse_retries: int = Field(ge=0, le=3, default=1)
-    strict_json_schema: bool = True
-    enable_daily_cache: bool = True
-
-
 class RadarConfig(BaseModel):
     index_monitor: IndexMonitorConfig
+    qdii_router: QDIIRouterConfig = Field(default_factory=QDIIRouterConfig)
     cb_screener: CBScreenerConfig
     position_monitor: PositionMonitorConfig = Field(default_factory=PositionMonitorConfig)
     evidence_budget: EvidenceBudgetConfig = Field(default_factory=EvidenceBudgetConfig)
-    llm: LLMConfig = Field(default_factory=LLMConfig)
 
 
 class EnvSecrets(BaseModel):
-    gemini_api_key: str = ""
-    openai_api_key: str = ""
-    openai_base_url: str = ""
     webhook_url: str = ""
+    jisilu_cookie: str = ""
 
 
 class AppConfig(BaseModel):
@@ -166,8 +179,8 @@ class AppConfig(BaseModel):
         return self.data_dir / "audits"
 
     @property
-    def effective_openai_base_url(self) -> Optional[str]:
-        return self.secrets.openai_base_url or self.radar.llm.base_url
+    def last_scan_path(self) -> Path:
+        return self.data_dir / "last_scan.json"
 
 
 def load_config(
@@ -175,7 +188,7 @@ def load_config(
     env_path: Optional[Path | str] = Path(".env"),
     data_dir: Optional[Path | str] = None,
 ) -> AppConfig:
-    """加载并严格校验 YAML 配置与 .env 环境变量。"""
+    """加载并严格校验 YAML 配置与可选 .env 环境变量（零 LLM API Key）。"""
     cfg_file = Path(config_path).resolve()
     if not cfg_file.exists():
         raise ConfigValidationError(f"配置文件不存在: {cfg_file}")
@@ -199,13 +212,10 @@ def load_config(
             load_dotenv(env_file, override=False)
 
     secrets = EnvSecrets(
-        gemini_api_key=os.getenv("GEMINI_API_KEY", "").strip(),
-        openai_api_key=os.getenv("OPENAI_API_KEY", "").strip(),
-        openai_base_url=os.getenv("OPENAI_BASE_URL", "").strip(),
         webhook_url=os.getenv("WEBHOOK_URL", "").strip(),
+        jisilu_cookie=os.getenv("JISILU_COOKIE", "").strip(),
     )
 
-    # 推断项目根目录（config/radar.yaml 的上两级）
     project_root = cfg_file.parent.parent if cfg_file.parent.name == "config" else cfg_file.parent
     resolved_data_dir = Path(data_dir).resolve() if data_dir is not None else (project_root / "data")
 

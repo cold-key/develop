@@ -100,3 +100,28 @@ def test_cb_ipo_filtering_and_reserved_cash_warning() -> None:
     assert [i.bond_code for i in today_ipos] == ["123991"]
     assert warning is not None
     assert "打新预留额" in warning
+
+
+def test_cb_feed_redeem_parser_and_ytm_estimator() -> None:
+    from wealth_radar.data_feed.cb_feed import _estimate_conservative_ytm_pct, _parse_redeem_status
+    from wealth_radar.data_feed.index_feed import _to_sina_etf_symbol
+    from wealth_radar.domain.models import credit_rating_meets_min, normalize_credit_rating
+
+    assert normalize_credit_rating("AA+sti") == "AA+"
+    assert normalize_credit_rating("AA-pi") == "AA-"
+    assert credit_rating_meets_min("AA+sti", "A+") is True
+    assert credit_rating_meets_min("A-pi", "A+") is False
+    assert credit_rating_meets_min("", "A+") is False
+
+    assert _parse_redeem_status("已公告强赎", "最后交易") == (True, 0)
+    assert _parse_redeem_status("已满足强赎条件", "") == (False, 0)
+    assert _parse_redeem_status("公告不强赎", "15/15") == (False, None)
+    assert _parse_redeem_status("", "12/15") == (False, 3)
+    assert _parse_redeem_status("", "至少还需4天") == (False, 4)
+
+    assert _estimate_conservative_ytm_pct(104.0, 1.5) > 2.0
+    assert _estimate_conservative_ytm_pct(112.0, 1.5) < 0.0
+
+    assert _to_sina_etf_symbol("518880") == "sh518880"
+    assert _to_sina_etf_symbol("159941") == "sz159941"
+    assert _to_sina_etf_symbol("sh513100") == "sh513100"

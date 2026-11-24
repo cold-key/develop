@@ -3,14 +3,16 @@
 from __future__ import annotations
 
 from datetime import date
-from typing import Dict, List
+from typing import Dict, List, Optional, Sequence
 
-from wealth_radar.config.loader import PositionMonitorConfig
+from wealth_radar.config.loader import PositionMonitorConfig, QDIIRouterConfig
+from wealth_radar.core.qdii_router import analyze_holdings_purity
 from wealth_radar.domain.models import (
     CBMarketRow,
     NoticeItem,
     PortfolioSnapshot,
     PositionAlert,
+    QDIIHoldingItem,
 )
 
 SEVERE_CREDIT_NOTICE_KEYWORDS = (
@@ -35,6 +37,8 @@ def evaluate_positions(
     index_latest_prices: Dict[str, float],
     cfg: PositionMonitorConfig,
     as_of_date: date,
+    qdii_holdings_by_code: Optional[Dict[str, Sequence[QDIIHoldingItem]]] = None,
+    qdii_cfg: Optional[QDIIRouterConfig] = None,
 ) -> List[PositionAlert]:
     """扫描已持仓可转债与指数标的，输出按严重程度排序的存续期告警列表。"""
     alerts: List[PositionAlert] = []
@@ -194,6 +198,39 @@ def evaluate_positions(
                         recommended_action="若计划继续长期持有，评估逢高止盈或置换为 A 类基金/场内 ETF。",
                     )
                 )
+
+        # 2c. 持仓主动 QDII 风格漂移与防老鼠仓告警（v2.0）
+        if qdii_holdings_by_code and qdii_cfg is not None:
+            lookup_code = idx_holding.qdii_holdings_code or idx_holding.qdii_fund_code
+            if lookup_code and lookup_code in qdii_holdings_by_code:
+                us_pct, cn_hk_pct, _, quarter = analyze_holdings_purity(
+                    qdii_holdings_by_code[lookup_code]
+                )
+                if us_pct is not None and cn_hk_pct is not None:
+                    drift_reasons: List[str] = []
+                    if us_pct < qdii_cfg.min_us_developed_top10_pct:
+                        drift_reasons.append(
+                            f"美股/发达市场重仓占比跌至 {us_pct:.1f}%（底线 {qdii_cfg.min_us_developed_top10_pct:.1f}%）"
+                        )
+                    if cn_hk_pct > qdii_cfg.max_cn_hk_top10_pct:
+                        drift_reasons.append(
+                            f"A股+港股占比升至 {cn_hk_pct:.1f}%（红线 {qdii_cfg.max_cn_hk_top10_pct:.1f}%）"
+                        )
+                    if drift_reasons:
+                        alerts.append(
+                            PositionAlert(
+                                target_id=idx_holding.qdii_fund_code or idx_holding.symbol,
+                                target_name=idx_holding.name,
+                                asset_type="INDEX_BATCH",
+                                alert_type="STYLE_DRIFT",
+                                severity="CRITICAL",
+                                message=(
+                                    f"持仓 QDII 最新季报({quarter or '最新'})出现风格漂移："
+                                    + "；".join(drift_reasons)
+                                ),
+                                recommended_action="核查季报前十大持仓与基金经理变动，若已偏离美股科技大盘主线则择机切换平替池其他标的。",
+                            )
+                        )
 
     alerts.sort(key=lambda a: (SEVERITY_ORDER[a.severity], a.asset_type, a.target_id, a.alert_type))
     return alerts

@@ -1,4 +1,4 @@
-"""自定义异常层次结构。"""
+"""自定义异常层次结构（v2.0）。"""
 
 from __future__ import annotations
 
@@ -12,16 +12,16 @@ class ConfigValidationError(WealthRadarError):
 
 
 class DataFeedError(WealthRadarError):
-    """外部行情、公告或新闻数据获取失败。"""
+    """外部行情、基金、公告或新闻数据获取失败。"""
 
 
 class MissingDependencyError(WealthRadarError):
     """运行所需的可选外部依赖未安装。"""
 
 
-class LLMAuditError(WealthRadarError):
-    """LLM 网关调用或结构化输出解析失败。"""
+class AuditGateError(WealthRadarError):
+    """审计结论提交格式或门禁输入校验失败。"""
 
 
 class PersistenceError(WealthRadarError):
-    """状态或审计记录持久化失败。"""
+    """状态、持仓或审计记录持久化失败。"""

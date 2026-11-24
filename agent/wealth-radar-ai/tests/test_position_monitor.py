@@ -178,3 +178,49 @@ def test_cb_take_profit_index_take_profit_and_c_class_fee_drag() -> None:
     assert ("QQQ", "TAKE_PROFIT") in alert_map
     assert ("QQQ", "C_CLASS_FEE_DRAG") in alert_map
     assert alert_map[("QQQ", "C_CLASS_FEE_DRAG")].severity == "INFO"
+
+
+def test_stage0_held_qdii_style_drift_triggers_critical_alert() -> None:
+    from wealth_radar.config.loader import QDIIRouterConfig
+    from wealth_radar.domain.models import QDIIHoldingItem
+
+    cfg = PositionMonitorConfig()
+    qdii_cfg = QDIIRouterConfig(min_us_developed_top10_pct=65.0, max_cn_hk_top10_pct=20.0)
+    as_of = date(2026, 11, 24)
+    portfolio = PortfolioSnapshot(
+        updated_at=as_of,
+        index_holdings=[
+            IndexHolding(
+                symbol="QQQ",
+                name="某风格漂移全球基C",
+                fund_class="C",
+                correlation_group="us_tech",
+                invested_cny=1200.0,
+                avg_entry_price=500.0,
+                first_buy_date=date(2026, 10, 1),
+                qdii_fund_code="017431",
+                qdii_holdings_code="017431",
+            )
+        ],
+    )
+    drifted_holdings = {
+        "017431": [
+            QDIIHoldingItem(stock_code="300750", stock_name="宁德时代", weight_pct=9.4, quarter="2026年1季度"),
+            QDIIHoldingItem(stock_code="00700", stock_name="腾讯控股", weight_pct=6.1, quarter="2026年1季度"),
+            QDIIHoldingItem(stock_code="TSLA", stock_name="特斯拉", weight_pct=5.0, quarter="2026年1季度"),
+        ]
+    }
+    alerts = evaluate_positions(
+        portfolio,
+        {},
+        {},
+        {"QQQ": 510.0},
+        cfg,
+        as_of,
+        qdii_holdings_by_code=drifted_holdings,
+        qdii_cfg=qdii_cfg,
+    )
+    drift_alerts = [a for a in alerts if a.alert_type == "STYLE_DRIFT"]
+    assert len(drift_alerts) == 1
+    assert drift_alerts[0].severity == "CRITICAL"
+    assert "风格漂移" in drift_alerts[0].message
