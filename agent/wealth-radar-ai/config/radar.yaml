@@ -1,0 +1,107 @@
+# config/radar.yaml (v1.1)
+index_monitor:
+  total_budget_cny: 5000            # 指数舱总预算硬上限（严格禁止超支）
+  lookback_days: 120
+  reset_drawdown_pct: -2.0          # 回撤收敛至 -2% 以内自动重置所有已触发档位
+  cooldown_trading_days: 5          # 重置后冷却交易日数，防止震荡市在浅回调反复触发打光子弹
+  # 相关性组预算上限：避免把高相关标的（如 QQQ 与 SOXX）独立核算导致同向满仓
+  correlation_groups:
+    us_tech: 3500
+    defensive_hedge: 1500
+  targets:
+    - symbol: "QQQ"
+      source: "yfinance"
+      market_timezone: "US"         # 14:30 运行时自动标注 T-1 美股收盘滞后，并提示核对 QDII 限购
+      correlation_group: "us_tech"
+      name: "纳指100 (对应场外C类)"
+      budget_cny: 3500
+      # 金字塔分批加仓（越跌买越多，合计 <= budget_cny）
+      tiers:
+        - drawdown_pct: -5.0
+          amount_cny: 800
+        - drawdown_pct: -10.0
+          amount_cny: 1200
+        - drawdown_pct: -15.0
+          amount_cny: 1500
+    # 默认搭配低相关主线平滑回撤；若仍想配置 SOXX，请将其 correlation_group 设为 "us_tech" 并与 QQQ 共享 3,500 元预算
+    - symbol: "518880"
+      source: "akshare"
+      market_timezone: "CN"
+      correlation_group: "defensive_hedge"
+      name: "黄金ETF (对应场外C类联接)"
+      budget_cny: 1500
+      tiers:
+        - drawdown_pct: -4.0
+          amount_cny: 600
+        - drawdown_pct: -8.0
+          amount_cny: 900
+
+cb_screener:
+  total_budget_cny: 3000
+  reserved_ipo_cash_cny: 1000       # 建议常备的打新中签缴款机动额（超额使用时发出提示）
+  min_order_amount_cny: 2000        # “不免五”佣金防磨损护栏（若确认券商转债免五可调低至 1000）
+  # 信用与价格双底线：严防 70~95 元深度违约债挤占双低 top_k
+  min_price: 96.0
+  max_price: 108.0
+  max_premium_rate_pct: 45.0
+  min_ytm_pct: 0.0                  # 到期税前收益率 >= 0%，守住债底保护
+  min_remaining_years: 0.8
+  max_remaining_years: 2.5
+  min_stock_price_cny: 2.0          # 正股现价 >= 2.0 元，远离 1 元面值退市高危区
+  min_credit_rating: "A+"           # 最低主体/债项评级（稳健型可提高至 "AA-"）
+  exclude_st: true
+  exclude_redeem_announced: true    # 排除已公告强赎或临近强赎触发标的
+  top_k: 5                          # 仅取合规双低前 5 只进入公告抓取与 LLM 审计
+  notice_lookback_days: 90
+  # 命中以下高危关键词时，尝试抓取公告正文前 400 字用于核对锁定期截止日/强赎日/立案事由
+  fetch_detail_keywords:
+    - "不向下修正"
+    - "不下修"
+    - "提议向下修正"
+    - "强赎"
+    - "提前赎回"
+    - "立案"
+    - "违约"
+    - "退市"
+  notice_keywords:
+    - "不向下修正"
+    - "不下修"
+    - "提议向下修正"
+    - "向下修正"
+    - "回售"
+    - "赎回"
+    - "强赎"
+    - "提前赎回"
+    - "业绩预告"
+    - "立案"
+    - "问询函"
+    - "评级"
+    - "逾期"
+    - "违约"
+    - "退市"
+    - "面值"
+    - "风险提示"
+
+position_monitor:
+  cb_take_profit_price: 128.0       # 持仓转债达到目标价提醒分批止盈
+  cb_stop_review_price: 92.0        # 持仓转债跌破信用警戒线触发 CRITICAL 复审
+  cb_redeem_alert_days_remaining: 5 # 强赎触发计数剩余 <= 5 个交易日或已公告强赎触发 CRITICAL 告警
+  cb_putback_window_alert: true     # 触发回售窗口或回售登记期提醒
+  index_take_profit_pct: 25.0       # 指数持仓浮盈达到 +25% 提醒分批止盈或再平衡
+  index_c_class_max_days: 330       # 场外 C 类持有临近 1 年提醒评估销售服务费损耗
+
+evidence_budget:
+  max_notices_per_target: 8
+  max_detail_chars_per_notice: 400  # 单条高危公告正文片段上限
+  max_news_per_target: 6
+  max_chars_per_bundle: 3200        # 单个标的送入 LLM 的最大证据字符数
+
+llm:
+  provider: "gemini"                # 可选: "gemini" | "openai_compatible"
+  model: "gemini-2.5-flash"         # 若用 DeepSeek 可改为 "deepseek-chat"
+  base_url: null                    # openai_compatible 时可填如 "https://api.deepseek.com"
+  temperature: 0.1                  # 低温保证审计稳定性与可复现性
+  timeout_sec: 30
+  max_parse_retries: 1              # JSON 校验失败最多带报错信息重试 1 次
+  strict_json_schema: true          # DeepSeek 等仅支持 json_object 的接口自动回退或置为 false
+  enable_daily_cache: true

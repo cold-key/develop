@@ -1,0 +1,24 @@
+{
+  "updated_at": "2026-11-24",
+  "index_holdings": [
+    {
+      "symbol": "QQQ",
+      "name": "纳指100场外C类",
+      "fund_class": "C",
+      "correlation_group": "us_tech",
+      "invested_cny": 800.0,
+      "avg_entry_price": 400.0,
+      "first_buy_date": "2025-12-01"
+    }
+  ],
+  "cb_holdings": [
+    {
+      "bond_code": "123100",
+      "bond_name": "强赎测试转债",
+      "stock_code": "300100",
+      "quantity": 10,
+      "avg_cost_price": 105.0,
+      "buy_date": "2026-08-01"
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "cb_non_revision_reject": {
+    "target_id": "123001",
+    "target_name": "陷阱转债",
+    "asset_type": "CB_CONVEX",
+    "audit_mode": "CRO_VETO",
+    "hard_veto": true,
+    "veto_reason": "公司于2026-11-10公告未来6个月不向下修正转股价格（至2027-05-10），下修博弈逻辑失效",
+    "lockup_expiry_date": "2027-05-10",
+    "drawdown_attribution": null,
+    "credit_or_structural_risk": "HIGH",
+    "thesis_status": "BROKEN",
+    "bear_case_arguments": [
+      "近90日内明确承诺不下修转股价格，短期内失去条款博弈催化"
+    ],
+    "bull_case_catalysts": [],
+    "evidence_citations": [
+      "2026-11-10 关于不向下修正“陷阱转债”转股价格的公告"
+    ],
+    "missing_info_warnings": [],
+    "final_action": "REJECT",
+    "confidence_score": 96
+  },
+  "cb_clean_approve": {
+    "target_id": "123002",
+    "target_name": "稳健转债",
+    "asset_type": "CB_CONVEX",
+    "audit_mode": "CRO_VETO",
+    "hard_veto": false,
+    "veto_reason": null,
+    "lockup_expiry_date": null,
+    "drawdown_attribution": null,
+    "credit_or_structural_risk": "LOW",
+    "thesis_status": "INTACT",
+    "bear_case_arguments": [
+      "溢价率23%在弱市中仍可能随正股小幅波动"
+    ],
+    "bull_case_catalysts": [
+      "三季报预增且无不下修锁定期，剩余1.5年债底与下修赔率完好"
+    ],
+    "evidence_citations": [
+      "2026-11-05 2026年三季度业绩预告"
+    ],
+    "missing_info_warnings": [],
+    "final_action": "APPROVE_BUY",
+    "confidence_score": 82
+  },
+  "index_panic_approve": {
+    "target_id": "QQQ",
+    "target_name": "纳指100 (对应场外C类)",
+    "asset_type": "INDEX_BATCH",
+    "audit_mode": "INDEX_BRIEFING",
+    "hard_veto": false,
+    "veto_reason": null,
+    "lockup_expiry_date": null,
+    "drawdown_attribution": "美债利率反弹与短期通胀担忧引发科技成长股估值消化，核心盈利逻辑未受损",
+    "credit_or_structural_risk": "MEDIUM",
+    "thesis_status": "INTACT",
+    "bear_case_arguments": [
+      "若美联储推迟降息周期，高估值科技股仍有二次探底压力"
+    ],
+    "bull_case_catalysts": [
+      "头部权重云业务资本开支稳健，回撤已达左侧预设分批档位"
+    ],
+    "evidence_citations": [
+      "2026-11-23 通胀预期扰动引发科技股回调"
+    ],
+    "missing_info_warnings": [],
+    "final_action": "APPROVE_BUY",
+    "confidence_score": 79
+  }
+}
